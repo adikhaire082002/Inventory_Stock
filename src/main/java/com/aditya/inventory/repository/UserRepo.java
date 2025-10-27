@@ -9,6 +9,7 @@ import com.aditya.inventory.entity.User;
 public interface UserRepo extends JpaRepository<User, Integer> {
 
 	boolean existsByEmail(String email);
+	boolean existsByMobileNo(Long mobile);
 
 	User findByEmail(String username);
 }

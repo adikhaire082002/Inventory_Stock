@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.aditya.inventory.dto.BaseResponse;
 import com.aditya.inventory.dto.BaseResponseDto;
 import com.aditya.inventory.dto.ProductDto;
 import com.aditya.inventory.entity.Product;
@@ -39,14 +40,14 @@ public class ProductController {
 	
 	@PreAuthorize("hasRole('admin')") 
 	@PostMapping("/admin/addproduct")
-	public BaseResponseDto addProduct(@RequestBody ProductDto productDto){
+	public BaseResponse addProduct(@RequestBody ProductDto productDto){
 		String productName = productDto.getName();
 		
 		if(productService.existsByName(productName)) {
-			return new BaseResponseDto(HttpStatus.FOUND,"Product Already Added "+ productDto.getName() +" with this name",productDto,new Date());
+			return new BaseResponse(HttpStatus.FOUND,"Product Already Added "+ productDto.getName() +" with this name",new Date());
 		}
-		ProductDto product = productService.addProduct(productDto);
-		return new BaseResponseDto(HttpStatus.CREATED,"Product Added successfully ",product,new Date());
+		productService.addProduct(productDto);
+		return new BaseResponse(HttpStatus.CREATED,"Product Added successfully ",new Date());
 		
 	}
 	
@@ -69,26 +70,17 @@ public class ProductController {
 		
 		
 	}
-	
-	@PreAuthorize("hasRole('admin')")
-	@GetMapping("/admin/LowStockAlert")
-	public BaseResponseDto lowStockProducts(){
-		List<Product> products = productService.getProductsWithLowStock();
-		if(products.size() < 1 ) {
-			return new BaseResponseDto(HttpStatus.NOT_FOUND,"Product not found with low stocks ",products.toString(),new Date());
-		}
-			return new BaseResponseDto(HttpStatus.FOUND,"Product below products having low stocks: ",products,new Date());
-	}
-	
-	@PreAuthorize("hasAnyRole('admin')")
-	@GetMapping("/admin/getlogs")
-	public BaseResponseDto getLogs(){
-		List<TransactionalLog> getlogs = transactionService.getlogs();
-		if(getlogs.size() < 1 ) {
-			return new BaseResponseDto(HttpStatus.NOT_FOUND,"Dealers didnt update any stocks",null,new Date());
-		}
-				return new BaseResponseDto(HttpStatus.FOUND,"Logs of Updated stocks",getlogs,new Date());
-	}
+
+
+    @PreAuthorize("hasRole('admin')")
+    @GetMapping("/admin/LowStockAlert")
+    public BaseResponseDto lowStockProducts(){
+        List<Product> products = productService.getProductsWithLowStock();
+        if(products.isEmpty()) {
+            return new BaseResponseDto(HttpStatus.NOT_FOUND,"Product not found with low stocks ",products.toString(),new Date());
+        }
+        return new BaseResponseDto(HttpStatus.FOUND,"Product below products having low stocks: ",products,new Date());
+    }
 	
 	
 	//All User Access
@@ -155,9 +147,6 @@ public class ProductController {
 	
 		return new BaseResponseDto(HttpStatus.FOUND,"Stock updated Successfully by " + stockToUpdate,updateStock,new Date());
 	}
-	
-	
-	
 	
 
 }

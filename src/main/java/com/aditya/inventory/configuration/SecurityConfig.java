@@ -53,11 +53,11 @@ public class SecurityConfig {
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(
 				auth -> auth
-				.requestMatchers("/auth/**", "/inventoryManagement/**","/v3/api-docs/**","/swagger-ui.html","/swagger-ui/**", "/login")
+				.requestMatchers("/auth/**", "/inventoryManagement/**","/v3/api-docs/**","/swagger-ui.html","/swagger-ui/**")
 				.permitAll()
 				.anyRequest()
 				.authenticated());                                                                          //This endpoints not required any authentication and autherization
-		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));  //Removing session , no session stored t server
+		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));  //Removing session , no session stored at server
 		http.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizehandler));        // Custom Exeception handled for unauthorized user
 		http.csrf(csrf -> csrf.disable());																	//Disable Csrf token because we are using Jwt
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);   //Run jwt filter before authentication filter

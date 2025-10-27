@@ -10,12 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.aditya.inventory.dto.BaseResponseDto;
 import com.aditya.inventory.dto.LoginRequest;
 import com.aditya.inventory.dto.LoginResponse;
-import com.aditya.inventory.dto.UserRequestDto;
-import com.aditya.inventory.dto.UserResponseDto;
 import com.aditya.inventory.jwt.JwtUtils;
-import com.aditya.inventory.repository.UserRepo;
-import com.aditya.inventory.service.UserService;
-
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,13 +26,6 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
 
-
-	@Autowired
-	private UserService userService;
-
-	@Autowired
-	private UserRepo userRepo;
-
 	@Autowired
 	JwtUtils jwtUtils;
 	
@@ -46,22 +34,6 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-	
-	//---------------User SignUP-------------------//
-	
-	
-	@PostMapping("/signup")
-	public BaseResponseDto createUser(@RequestBody UserRequestDto userRequestDto) {
-
-		if (userRepo.existsByEmail(userRequestDto.getEmail())) {
-			
-			return new BaseResponseDto(HttpStatus.FOUND,"User aleardy register with" + userRequestDto.getEmail() + " this mail",userRequestDto,new Date());
-		}
-		UserResponseDto user = userService.addUser(userRequestDto);
-		
-		return new BaseResponseDto(HttpStatus.CREATED,"User added successfully",user,new Date());
-	}
-	
 	
 	//--------------User Sign In----------------------//
 	@PostMapping("/signin")

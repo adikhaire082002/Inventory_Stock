@@ -1,5 +1,7 @@
 package com.aditya.inventory.mapper;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -45,6 +47,19 @@ public class UserMapper {
 
 		return dto;
 
+	}
+	
+	//-----------------UserDto to User---------------//
+	
+	public User toUser(UserRequestDto requestDto, User user) {
+		user.setName(requestDto.getName());
+		user.setAddress(requestDto.getAddress());
+		user.setEmail(requestDto.getEmail());
+		user.setMobileNo(requestDto.getMobile());
+		user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+		user.setUpdatedAt(new Date());
+
+		return user;
 	}
 
 }

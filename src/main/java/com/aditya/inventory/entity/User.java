@@ -27,7 +27,7 @@ public class User {
 	@Column(nullable = false)
 	private String name;
 	
-	@Column(nullable = false)
+	@Column(nullable = false,unique = true)
 	private String email;
 	
 	@Column(nullable = false)
@@ -37,7 +37,7 @@ public class User {
 	@JoinColumn( name = "role_id")
 	private Role role;
 	
-	@Column(nullable = false)
+	@Column(nullable = false,unique=true)
 	private Long mobileNo;
 	
 	@Column(nullable = false)

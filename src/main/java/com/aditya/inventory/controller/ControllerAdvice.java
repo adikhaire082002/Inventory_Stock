@@ -1,5 +1,6 @@
 package com.aditya.inventory.controller;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.NoSuchElementException;
 
@@ -44,5 +45,17 @@ public class ControllerAdvice {
 	public BaseResponseDto handlerAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException ex) {
 		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"You dont have access of this url", ex.getMessage(), new Date());
 	}
+	
+	@ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+	public BaseResponseDto handlerSQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException ex) {
+		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"The Email or Mobile is already register", ex.getMessage(), new Date());
+	}
+	
+	@ExceptionHandler(IllegalArgumentException.class)
+	public BaseResponseDto handlerIllegalArgumentException(IllegalArgumentException ex) {
+		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Enter Valid Input", ex.getMessage(), new Date());
+	}
+	
+	
 	
 }
