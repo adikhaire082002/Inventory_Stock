@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Getter
@@ -20,8 +21,12 @@ import lombok.Setter;
 public class Admin {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer admin_id;
+	@GeneratedValue(generator = "custom-id")
+    @GenericGenerator(
+            name = "custom-id",
+            strategy = "com.aditya.inventory.idGererator.CustomIdGenerator"
+    )
+	private String admin_id;
 	
 	@Column(nullable = false)
 	private String name;
@@ -47,6 +52,6 @@ public class Admin {
 	private Date updatedAt;
 	
 	@Column(unique = true)
-	private int user_id;
+	private String user_id;
 
 }

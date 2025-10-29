@@ -17,29 +17,23 @@ import com.aditya.inventory.dto.BaseResponseDto;
 
 
 @RestController
-@RequestMapping("/TransactionLog")
+@RequestMapping("/transactionLog")
 public class TransactionController {
 	
 	@Autowired
     TransactionService transactionService;
 
     @PreAuthorize("hasAnyRole('Admin')")
-    @GetMapping("/Getlogs-admin")
+    @GetMapping("/getLogs")
     public BaseResponseDto getLogs(){
         List<TransactionalLog> getlogs = transactionService.getlogs();
-        if(getlogs.size() < 1 ) {
-            return new BaseResponseDto(HttpStatus.NOT_FOUND,"Dealers didnt update any stocks",null,new Date());
-        }
         return new BaseResponseDto(HttpStatus.FOUND,"Logs of Updated stocks",getlogs,new Date());
     }
 
     @PreAuthorize("hasAnyRole('Admin')")
-    @GetMapping("/GetlogsByDate-admin")
+    @GetMapping("/getlogsByDate")
     public BaseResponseDto getLogsByDate(@RequestParam String date){
         List<TransactionalLog> getlogs = transactionService.getlogsByDate(date);
-        if(getlogs.size() < 1 ) {
-            return new BaseResponseDto(HttpStatus.NOT_FOUND,"Dealers didnt update any stocks",null,new Date());
-        }
         return new BaseResponseDto(HttpStatus.FOUND,"Logs of Updated stocks with given the date " + date ,getlogs,new Date());
     }
 

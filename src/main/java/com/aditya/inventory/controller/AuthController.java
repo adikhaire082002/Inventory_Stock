@@ -28,49 +28,14 @@ import java.util.Date;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
 
-	@Autowired
-	private UserRepo userRepo;
-	
 	@Autowired
 	private UserService userService;
-    
-	@Autowired
-	JwtUtils jwtUtils;
-	
 
-    AuthController(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
-
-    @PostMapping("/signup")
-	public BaseResponse createUser(@RequestBody UserRequestDto userRequestDto) {
-        if (userRepo.existsByEmail(userRequestDto.getEmail())) {
-
-            return new BaseResponse(HttpStatus.FOUND,
-                    "User aleardy register with " + userRequestDto.getEmail() + " this mail", new Date());
-        } else if (userRepo.existsByMobileNo(userRequestDto.getMobile())) {
-
-            return new BaseResponse(HttpStatus.FOUND,
-                    "User aleardy register with " + userRequestDto.getMobile() + " this mobile", new Date());
-        }
-		userService.addUser(userRequestDto);
-
-		return new BaseResponse(HttpStatus.CREATED, "User added successfully", new Date());
-	}
-    
 	//--------------User Sign In----------------------//
 	@PostMapping("/signin")
     public BaseResponseDto authenticateUser(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail().toLowerCase(), loginRequest.getPassword()));  //check email and password
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);          //Store aunthenticated user in spring security context
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();          // Gives the user info
-        String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);             // generate Jwt token for valided user
-        LoginResponse response = new LoginResponse(userDetails.getUsername(), jwtToken); // response jwt token with email
-
+       LoginResponse response =  userService.authenticateUser(loginRequest);
 		return new BaseResponseDto(HttpStatus.OK,"Login Successfully",response,new Date());
     }
 

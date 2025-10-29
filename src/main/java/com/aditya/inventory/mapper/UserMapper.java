@@ -53,12 +53,40 @@ public class UserMapper {
 	//-----------------UserDto to User---------------//
 	
 	public User toUser(UserRequestDto requestDto, User user) {
-		user.setName(requestDto.getName());
-		user.setAddress(requestDto.getAddress());
-		user.setRole(requestDto.getRole());
-		user.setEmail(requestDto.getEmail().toLowerCase());
-		user.setMobileNo(requestDto.getMobile());
-		user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+        if(requestDto.getName()!=null){
+            if(requestDto.getName().isEmpty()){
+                user.setName(requestDto.getName());
+            }
+        }
+        if(requestDto.getAddress()!=null){
+            if(requestDto.getAddress().isEmpty()){
+                user.setAddress(requestDto.getAddress());
+            }
+        }
+
+        if(requestDto.getRole()!=null){
+            if(requestDto.getRole().length!=0){
+                user.setRole(requestDto.getRole());
+            }
+        }
+
+        if(requestDto.getEmail()!=null){
+            if(!requestDto.getEmail().isEmpty()){
+                user.setEmail(requestDto.getEmail().toLowerCase());
+            }
+        }
+
+        if(requestDto.getMobile()!=null){
+            if(requestDto.getMobile()!=0){
+                user.setMobileNo(requestDto.getMobile());
+            }
+        }
+        if(requestDto.getPassword()!=null){
+            if(!requestDto.getPassword().isEmpty()){
+                user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+            }
+        }
+
 		return user;
 	}
 	

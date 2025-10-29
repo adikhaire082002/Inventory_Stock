@@ -1,16 +1,15 @@
 package com.aditya.inventory.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Getter
@@ -20,8 +19,12 @@ import lombok.Setter;
 public class Dealer {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer dealer_id;
+    @GeneratedValue(generator = "custom-id")
+    @GenericGenerator(
+            name = "custom-id",
+            strategy = "com.aditya.inventory.idGererator.CustomIdGenerator"
+    )
+	private String dealer_id;
 	
 	@Column(nullable = false)
 	private String name;
@@ -45,8 +48,18 @@ public class Dealer {
 	
 	
 	private Date updatedAt;
-	
-	@Column(unique = true)
-	private int user_id;
+
+    @Column(nullable = false)
+    private String CompanyName;
+
+    @Column(nullable = false)
+    private String GSTNo;
+
+    @OneToMany(mappedBy = "dealer", cascade = {CascadeType.PERSIST, CascadeType.MERGE},orphanRemoval = true)
+    private List<Product> products = new ArrayList<>();
+
+
+    @Column(unique = true)
+	private String user_id;
 
 }

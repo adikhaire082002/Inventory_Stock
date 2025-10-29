@@ -5,12 +5,12 @@ import java.util.Date;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Getter
@@ -20,8 +20,12 @@ import lombok.Setter;
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer user_id;
+    @GeneratedValue(generator = "custom-id")
+    @GenericGenerator(
+            name = "custom-id",
+            strategy = "com.aditya.inventory.idGererator.CustomIdGenerator"
+    )
+	private String user_id;
 	
 	@Column(nullable = false)
 	private String name;

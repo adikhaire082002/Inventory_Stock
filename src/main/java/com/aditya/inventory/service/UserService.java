@@ -3,8 +3,11 @@ package com.aditya.inventory.service;
 import java.util.HashMap;
 import java.util.List;
 
+import com.aditya.inventory.dto.LoginRequest;
+import com.aditya.inventory.dto.LoginResponse;
 import com.aditya.inventory.dto.UserRequestDto;
 import com.aditya.inventory.dto.UserResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface UserService {
 	
@@ -12,13 +15,13 @@ public interface UserService {
 	
 	List<UserResponseDto> getUsers() ;
 
-	boolean deleteProduct(Integer id);
+	boolean deleteUser(String id, HttpServletRequest request);
 
-	UserResponseDto getUserById(Integer id);
+	UserResponseDto getUserById(String id);
 
 	UserResponseDto getUserByEmail(String userNameFromJwtToken);
 
-	UserResponseDto updateUser(UserRequestDto userRequestDto,UserResponseDto responseDto);
+	UserResponseDto updateUser(UserRequestDto userRequestDto,HttpServletRequest request);
 
 	List<UserResponseDto> getDealers();
 	
@@ -27,8 +30,7 @@ public interface UserService {
 	List<UserResponseDto> getCustomers();
 	
 	HashMap<String,List<UserResponseDto>> getUsersSortByRoles();
-	
-	
-	
 
+
+    LoginResponse authenticateUser(LoginRequest loginRequest);
 }

@@ -54,35 +54,59 @@ public class ProductMapper {
 
 		Product product = new Product();
 		product.setBrand(dto.getBrand());
+        product.setImages(dto.getImages());
 		product.setCategories(categories);
 		product.setCreatedAt(dto.getCreatedAt());
 		product.setDescription(dto.getDescription());
 		product.setName(dto.getName());
 		product.setPrice(dto.getPrice());
 		product.setQuantity(dto.getQuantity());
-		product.setUpdatedAt(dto.getUpdatedAt());
+
 
 		return product;
 	}
 
 	
 	//-----------------Exixted ProductDTO to Prouct---------------//
-	public Product toProduct(ProductDto dto, Product product) {
+	public Product toProduct(ProductDto productDto, Product product) {
 
-		List<Category> categories = new ArrayList<Category>();
+        if(productDto.getCategories()!=null ) {
+            if(!productDto.getCategories().isEmpty()){
+                List<Category> categories = new ArrayList<Category>();
+                List<Category> categories1 = product.getCategories();
+                categories1.addAll(categories);
+                product.setCategories(categories1);
+            }
+        }
 
-		for (String category : dto.getCategories()) {
-			categories.add(categoryRepo.findByName(category));
+        if(productDto.getName()!=null ){
+            if(!productDto.getName().isEmpty()){
+                product.setName(productDto.getName());
+            }
 
-		}
+        }
+        if(productDto.getDescription()!=null){
+            if(!productDto.getDescription().isEmpty()){
+                product.setDescription(productDto.getDescription());
+            }
 
-		product.setBrand(dto.getBrand());
-		product.setCategories(categories);
-		product.setDescription(dto.getDescription());
-		product.setName(dto.getName());
-		product.setPrice(dto.getPrice());
-		product.setQuantity(dto.getQuantity());
-		product.setUpdatedAt(dto.getUpdatedAt());
+        }
+        if(productDto.getBrand()!=null ){
+            if(!productDto.getBrand().isEmpty()){
+                product.setBrand(productDto.getBrand());
+            }
+
+        }
+        if(productDto.getPrice()!=0 ) {
+            product.setPrice(productDto.getPrice());
+        }
+        if(productDto.getBrand()!=null ){
+            if(!productDto.getBrand().isEmpty()){
+                product.setBrand(productDto.getBrand());
+            }
+
+        }
+		product.setUpdatedAt(productDto.getUpdatedAt());
 
 		return product;
 	}

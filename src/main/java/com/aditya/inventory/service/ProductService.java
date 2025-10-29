@@ -6,40 +6,44 @@ import java.util.List;
 import com.aditya.inventory.dto.ProductDto;
 import com.aditya.inventory.entity.Product;
 import com.aditya.inventory.entity.TransactionalLog;
+import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 
 public interface ProductService {
 
 	//ADD
-	ProductDto addProduct(ProductDto productDto);
+	ProductDto addProduct(ProductDto productDto,Authentication authentication);
 	
 	//UPDATE PRODUCT
-	ProductDto updateProduct(Integer id, ProductDto productDto);
+	ProductDto updateProduct(Integer id, ProductDto productDto, Authentication authentication);
 	
 	//UPDATE STOCKS
-	TransactionalLog updateStock(Integer userID, Integer productId, int stockToUpdate);
+	TransactionalLog updateStock(Authentication authentication, Integer productId, int stockToUpdate);
 	
 	//FIND  ---NAME
-	boolean existsByName(String name);
+	void existsByName(String name);
 	
 	//      ---ID
 	ProductDto getProductById(Integer id);
 	
 	//GET
-	HashMap<Integer, List<Product>> getProducts();
+	Page<Product> getProducts(int page, int pageSize);
 	 
 	//      --BRAND NAME
-	HashMap<Integer, List<Product>> getProductsbyBrand(String brandName);
+    Page<Product> getProductsbyBrand(String brandName,int page, int pageSize);
 	
 	//      --CATEGORY
-	HashMap<Integer, List<Product>> getProductsbyCategory(String categoryName);
+    Page<Product> getProductsbyCategory(String categoryName,int page, int pageSize);
 	
 	//      --IN RANGE
-	HashMap<Integer, List<Product>> getProductsInRange(double from ,double to);
+    Page<Product> getProductsInRange(double from ,double to,int page, int pageSize);
 	
 	//LOW STOCK
-	List<Product> getProductsWithLowStock();
+    Page<Product> getProductsWithLowStock(int page, int pageSize,Authentication authentication);
+
+    Page<Product> getProductsByName(String name, int page, int pageSize);
 	
 	//DELETE
-	ProductDto deleteProduct(Integer id);
+	boolean deleteProduct(Integer id,Authentication authentication);
 	
 }
