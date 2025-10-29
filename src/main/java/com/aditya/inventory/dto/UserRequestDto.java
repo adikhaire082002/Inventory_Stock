@@ -22,6 +22,10 @@ public class UserRequestDto {
 	private Long mobile; 
 	
 	private String address;
+
+    private String companyName;
+
+    private String gstNo;
 	
 	private boolean status;
 	

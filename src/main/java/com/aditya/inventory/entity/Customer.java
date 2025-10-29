@@ -2,15 +2,14 @@ package com.aditya.inventory.entity;
 
 import java.util.Date;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Getter
@@ -18,36 +17,41 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Customer {
-	
-	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer customer_id;
+    @GeneratedValue(generator = "custom-id")
+    @GenericGenerator(
+            name = "custom-id",
+            strategy = "com.aditya.inventory.idGererator.CustomIdGenerator"
+    )
+	private String customer_id;
 	
 	@Column(nullable = false)
 	private String name;
-	
+
 	@Column(nullable = false,unique = true)
-	private String email;
-	
+    private String email;
+
 	@Column(nullable = false)
 	private String password;
-	
-	@Column(nullable = false,unique=true)
+
+    @Column(nullable = false,unique=true)
 	private Long mobileNo;
-	
-	@Column(nullable = false)
+
+    @Column(nullable = false)
 	private String address;
-	
-	private boolean status=true;
-	
-	@Column(nullable = false)
+
+    private boolean status=true;
+
+    @Column(nullable = false)
 	private Date createdAt;
-	
-	
-	private Date updatedAt = null;
-	
-	@Column(unique = true)
-	private int user_id;
+
+    @JsonManagedReference
+    @OneToOne(mappedBy = "customer",cascade = CascadeType.ALL)
+    private Cart cart;
+
+    private Date updatedAt = null;
+
+    @Column(unique = true)
+	private String user_id;
 
 }

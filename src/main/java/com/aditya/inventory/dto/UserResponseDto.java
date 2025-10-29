@@ -2,13 +2,13 @@ package com.aditya.inventory.dto;
 
 import java.util.Date;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserResponseDto {
 	
 private String name;

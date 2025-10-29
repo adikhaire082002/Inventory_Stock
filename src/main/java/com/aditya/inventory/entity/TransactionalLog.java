@@ -22,7 +22,7 @@ public class TransactionalLog {
 	
 	private Integer productId;
 	
-	private Integer userID;
+	private String dealer_id;
 	
 	private String changeType;
 	

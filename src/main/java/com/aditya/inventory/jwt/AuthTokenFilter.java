@@ -49,9 +49,20 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request)
+        throws ServletException{
+            String path = request.getServletPath();
+            return path.startsWith("/auth/") || path.startsWith("/User/signup");
+
+    }
+
 	// --------Extract Jwt from header----------//
 	private String parseJwt(HttpServletRequest request) {
 		String jwt = jwtUtils.getJwtFromHeader(request);
+        if (jwt == null || jwt.trim().isEmpty() || jwt.equalsIgnoreCase("null")) {
+            return null;
+        }
 		return jwt;
 	}
 }

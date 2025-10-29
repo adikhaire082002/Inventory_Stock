@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 
 import com.aditya.inventory.entity.Admin;
 @Repository
-public interface AdminRepo extends JpaRepository<Admin, Integer>{
+public interface AdminRepo extends JpaRepository<Admin, String>{
 
 	@Query("Select a from Admin a where a.user_id = :user_id")
-	Admin findByUser_id(@Param("user_id") Integer user_id);
+	Admin findByUser_id(@Param("user_id") String user_id);
 
 }

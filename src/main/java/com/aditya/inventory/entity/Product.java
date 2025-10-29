@@ -1,16 +1,12 @@
 package com.aditya.inventory.entity;
 
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -27,6 +23,9 @@ public class Product {
 	
 	@Column(nullable = false)
 	private String name;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<FileData> images = new ArrayList<>();
 	
 	@ManyToMany
 	@JoinTable(
@@ -52,8 +51,11 @@ public class Product {
 	private Date createdAt;
 	
 	private Date updatedAt;
-	
-	private List<Integer> dealers;
+
+   @ManyToOne(optional = false,fetch = FetchType.LAZY)
+   @JoinColumn(name = "dealer_id", nullable = false)
+  @JsonBackReference
+	private Dealer dealer;
 	
 
 	

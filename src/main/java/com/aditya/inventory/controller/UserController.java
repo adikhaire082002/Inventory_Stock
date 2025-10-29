@@ -2,13 +2,10 @@ package com.aditya.inventory.controller;
 
 import java.util.Date;
 
+import com.aditya.inventory.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.aditya.inventory.dto.BaseResponse;
 import com.aditya.inventory.dto.BaseResponseDto;
@@ -20,43 +17,29 @@ import com.aditya.inventory.service.UserService;
 import io.jsonwebtoken.lang.Arrays;
 import jakarta.servlet.http.HttpServletRequest;
 
-@RestController("/User")
+@RestController
+@RequestMapping("/User")
 public class UserController {
 
+    @Autowired
+    private UserService userService;
 
+    @PostMapping("/signup")
+    public BaseResponse createUser(@RequestBody UserRequestDto userRequestDto) {
+        userService.addUser(userRequestDto);
+        return new BaseResponse(HttpStatus.CREATED, "User added successfully", new Date());
+    }
 
-	@Autowired
-	private UserService userService;
-
-	@Autowired
-	private JwtUtils jwtUtils;
-
-
-	@DeleteMapping("/Delete")
-	public BaseResponse deleteProduct(@RequestParam Integer id, HttpServletRequest request) {
-		String jwt = jwtUtils.getJwtFromHeader(request);
-		String userNameFromJwtToken = jwtUtils.getUserNameFromJwtToken(jwt);
-		UserResponseDto userByEmail = userService.getUserByEmail(userNameFromJwtToken);
-		System.out.println(userByEmail.toString());
-		UserResponseDto userById = userService.getUserById(id);
-		System.out.println(userById.toString());
-
-		if (userByEmail.getMobile() == userById.getMobile() || Arrays.asList(userByEmail.getRole()).contains("Admin")) {
-			userService.deleteProduct(id);
-
-			return new BaseResponse(HttpStatus.GONE, "User Deleted successfully ", new Date());
-
-		}
-		return new BaseResponse(HttpStatus.UNAUTHORIZED, "You cant delete another user account ", new Date());
+	@DeleteMapping("/delete")
+	public BaseResponse deleteUser(@RequestParam String id, HttpServletRequest request) {
+        userService.deleteUser(id,request);
+		return new BaseResponse(HttpStatus.UNAUTHORIZED, "User Deleted ", new Date());
 
 	}
 	
-	@PutMapping("/Update")
-	public BaseResponseDto updateProduct(@RequestBody UserRequestDto userRequestDto,HttpServletRequest request) {
-		String jwt = jwtUtils.getJwtFromHeader(request);
-		String userNameFromJwtToken = jwtUtils.getUserNameFromJwtToken(jwt);
-		UserResponseDto userByEmail = userService.getUserByEmail(userNameFromJwtToken);
-		UserResponseDto updateUser = userService.updateUser(userRequestDto,userByEmail);
+	@PatchMapping("/update")
+	public BaseResponseDto updateUser(@RequestBody UserRequestDto userRequestDto,HttpServletRequest request) {
+		UserResponseDto updateUser = userService.updateUser(userRequestDto,request);
 		return new BaseResponseDto(HttpStatus.OK, "User update successfully",updateUser, new Date());
 	}
 

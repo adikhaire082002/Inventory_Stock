@@ -4,15 +4,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.aditya.inventory.customException.*;
+import com.aditya.inventory.dto.*;
+import com.aditya.inventory.jwt.JwtUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import com.aditya.inventory.controller.ControllerAdvice;
-import com.aditya.inventory.customException.InvalidAdminKey;
-import com.aditya.inventory.customException.InvalidRole;
-import com.aditya.inventory.dto.UserRequestDto;
-import com.aditya.inventory.dto.UserResponseDto;
 import com.aditya.inventory.entity.Admin;
 import com.aditya.inventory.entity.Customer;
 import com.aditya.inventory.entity.Dealer;
@@ -44,15 +50,57 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private CustomerRepo customerRepo;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
 	@Value("${adminLoginKey}")
 	String adminKey;
 
-	UserServiceImpl(ControllerAdvice controllerAdvice) {
-	}
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    //-------------------Sign In Authentication-----------//
+    @Override
+    public LoginResponse authenticateUser(LoginRequest loginRequest) {
+        if(!validateEmail(loginRequest.getEmail())){
+            throw new InvalidEmail();
+        }
+        if(!validatePassword(loginRequest.getPassword())){
+            throw new InvalidPassword();
+        }
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail().toLowerCase(),
+                        loginRequest.getPassword()));  //check email and password
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);          //Store aunthenticated user in spring security context
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();          // Gives the user info
+        String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);             // generate Jwt token for valided user
+        LoginResponse response = new LoginResponse(userDetails.getUsername(), jwtToken);// response jwt token with email
+        return  response;
+    }
 
 	// ---------------------Adding User-----------------//
 
 	public UserResponseDto addUser(UserRequestDto userRequestDto) {
+
+        if(!validateMobileNumber(userRequestDto.getMobile())){
+            throw new InvalidMobileNumber();
+        }
+        if(!validateEmail(userRequestDto.getEmail())){
+            throw new InvalidEmail();
+        }
+
+        if(!validatePassword(userRequestDto.getPassword())){
+            throw new InvalidPassword();
+        }
+
+        if(userRepo.existsByEmail(userRequestDto.getEmail())){
+            throw new AlreadyExits("Email " +  userRequestDto.getEmail());
+        }
+        if(userRepo.existsByMobileNo(userRequestDto.getMobile())){
+            throw new AlreadyExits("Mobile number " +  userRequestDto.getMobile());
+        }
+
 		
 		
 		String[] role = userRequestDto.getRole();
@@ -78,6 +126,12 @@ public class UserServiceImpl implements UserService {
 				throw new InvalidAdminKey();
 			}
 		}
+        //Checking company name and gst no
+        if (Arrays.asList(userRequestDto.getRole()).contains("Dealer")) {
+            if (userRequestDto.getCompanyName() == null || userRequestDto.getCompanyName().isEmpty() || userRequestDto.getGstNo() == null || userRequestDto.getGstNo().isEmpty()) {
+                throw new InvalidInput("Enter a Valid Company Name or GST No");
+            }
+        }
 
 		User user = userMapper.toUser(userRequestDto);
 		user.setCreatedAt(new Date());
@@ -94,6 +148,15 @@ public class UserServiceImpl implements UserService {
 			}
 			case "Dealer": {
 				Dealer dealer = userMapper.toDealer(savedUser);
+                if(userRequestDto.getCompanyName()!=null && userRequestDto.getGstNo()!=null) {
+                    if(!validateGSTNo(userRequestDto.getGstNo())) {
+                            throw new  InvalidGSTNo();
+                    }
+                    dealer.setGSTNo(userRequestDto.getGstNo());
+                    dealer.setCompanyName(userRequestDto.getCompanyName());
+
+                }
+
 				dealerRepo.save(dealer);
 				break;
 			}
@@ -125,7 +188,7 @@ public class UserServiceImpl implements UserService {
 
 	// ByID
 	@Override
-	public UserResponseDto getUserById(Integer id) {
+	public UserResponseDto getUserById(String id) {
 		User byId = userRepo.findById(id).get();
 		return userMapper.toDto(byId);
 	}
@@ -139,20 +202,91 @@ public class UserServiceImpl implements UserService {
 
 	// Delete User
 	@Override
-	public boolean deleteProduct(Integer id) {
-		userRepo.deleteById(id);
+	public boolean deleteUser(String id, HttpServletRequest request) {
+        String jwt = jwtUtils.getJwtFromHeader(request);
+        String userNameFromJwtToken = jwtUtils.getUserNameFromJwtToken(jwt);
+        UserResponseDto userByEmail = getUserByEmail(userNameFromJwtToken);
+
+        User userById = userRepo.findById(id).get();
+        if(userById==null){
+            throw new ResourceNotFound("User Not found");
+        }
+        if (userByEmail.getMobile() == userById.getMobileNo() || Arrays.asList(userByEmail.getRole()).contains("Admin")) {
+            String[] role = userById.getRole();
+            for(String role2 : role ) {
+                switch (role2){
+                    case "Admin": {
+                        Admin admin = adminRepo.findByUser_id(userById.getUser_id());
+                        adminRepo.delete(admin);
+                        break;
+                    }case "Dealer": {
+                        Dealer dealer = dealerRepo.findByUser_id(userById.getUser_id());
+                        dealerRepo.delete(dealer);
+                        break;
+                    }case "Customer": {
+                        Customer customer = customerRepo.findByUser_id(userById.getUser_id());
+                        customerRepo.delete(customer);
+                        break;
+                    }
+                }
+            }
+            userRepo.deleteById(id);
+        }
+
+
 		return true;
 	}
 
 	// Update User
 	@Override
-	public UserResponseDto updateUser(UserRequestDto userRequestDto, UserResponseDto userResponseDto) {
+	public UserResponseDto updateUser(UserRequestDto userRequestDto, HttpServletRequest request) {
+
+
+       if(userRequestDto.getMobile() != null){
+           if(!validateMobileNumber(userRequestDto.getMobile())){
+               throw new InvalidMobileNumber();
+           }
+       }
+       if(userRequestDto.getEmail()!=null){
+           if(!validateEmail(userRequestDto.getEmail())){
+               throw new InvalidEmail();
+           }
+       }
+
+       if(userRequestDto.getPassword()!=null){
+           if(!validatePassword(userRequestDto.getPassword())){
+               throw new InvalidPassword();
+           }
+       }
+
+        if(userRepo.existsByEmail(userRequestDto.getEmail())){
+            throw new AlreadyExits("Email " +  userRequestDto.getEmail());
+        }
+        if(userRepo.existsByMobileNo(userRequestDto.getMobile())){
+            throw new AlreadyExits("Mobile number " +  userRequestDto.getMobile());
+        }
+
+
+
 		if (Arrays.asList(userRequestDto.getRole()).contains("Admin")) {
 			if (!userRequestDto.getFor_admin_login_key_required().equals(adminKey)) {
 				throw new InvalidAdminKey();
 			}
 		}
-		User byEmail = userRepo.findByEmail(userResponseDto.getEmail());
+
+        //Checking company name and gst no
+        if (Arrays.asList(userRequestDto.getRole()).contains("Dealer")) {
+            if (userRequestDto.getCompanyName() == null || userRequestDto.getCompanyName().isEmpty() || userRequestDto.getGstNo() == null || userRequestDto.getGstNo().isEmpty()) {
+                if(!validateGSTNo(userRequestDto.getGstNo())) {
+                    throw new InvalidGSTNo();
+                }
+                throw new InvalidInput("Enter a Valid Company Name or GST No");
+            }
+        }
+
+        String jwt = jwtUtils.getJwtFromHeader(request);
+        String userNameFromJwtToken = jwtUtils.getUserNameFromJwtToken(jwt);
+		User byEmail = userRepo.findByEmail(userNameFromJwtToken);
 		User user = userMapper.toUser(userRequestDto, byEmail);
 		user.setUpdatedAt(new Date());
 		User savedUser = userRepo.save(user);
@@ -170,6 +304,15 @@ public class UserServiceImpl implements UserService {
 			case "Dealer": {
 				Dealer byUser_id = dealerRepo.findByUser_id(savedUser.getUser_id());
 				Dealer dealer = userMapper.toDealer(savedUser, byUser_id);
+                if(userRequestDto.getCompanyName()!=null && userRequestDto.getGstNo()!=null) {
+                    if(!validateGSTNo(userRequestDto.getGstNo())) {
+                        throw new  InvalidGSTNo();
+                    }
+                    dealer.setGSTNo(userRequestDto.getGstNo());
+                    dealer.setCompanyName(userRequestDto.getCompanyName());
+
+                }
+
 				dealerRepo.save(dealer);
 				break;
 			}
@@ -243,8 +386,43 @@ public class UserServiceImpl implements UserService {
 		
 		return users;
 	}
-	
-	
-	
+
+    //MobileNumber matching
+
+    private boolean validateMobileNumber(Long mobileNumber) {
+       String mobileNumberRegex = "^[6-9][0-9]{9}$";
+       Pattern pattern = Pattern.compile(mobileNumberRegex);
+        Matcher matcher = pattern.matcher(mobileNumber.toString());
+        return matcher.matches();
+
+    }
+
+    //Email pattern
+    private boolean validateEmail(String email) {
+        String emailRegex = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+
+    //Password match
+    private boolean validatePassword(String password) {
+        String passwordRegex ="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$" ;
+        Pattern pattern = Pattern.compile(passwordRegex);
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
+    }
+
+    //Vaildate GSTNO
+    private boolean validateGSTNo(String gstNo) {
+        String gstNoRegex = "^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$";
+        Pattern pattern = Pattern.compile(gstNoRegex);
+        Matcher matcher = pattern.matcher(gstNo);
+        return matcher.matches();
+    }
+
+
+
+
 
 }

@@ -3,6 +3,7 @@ package com.aditya.inventory.serviceImpl;
 
 import java.util.List;
 
+import com.aditya.inventory.customException.ResourceNotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,14 +29,16 @@ public class TransactionServiceImpl implements TransactionService {
     //----------------Get Transactions---------------------------- */
 	
 	public List<TransactionalLog> getlogs(){
-		List<TransactionalLog> all = logRepo.findAll();
-		return all;
+            List<TransactionalLog> all = logRepo.findAll();
+            if (all.isEmpty()) throw new ResourceNotFound("Logs not fount");
+            return all;
 	}
 
     @Override
     public List<TransactionalLog> getlogsByDate(String date) {
-           List<TransactionalLog> byCreatedAt = logRepo.findByCreatedAt(date);
-        return byCreatedAt ;
+           List<TransactionalLog> all = logRepo.findByCreatedAt(date);
+        if (all.isEmpty()) throw new ResourceNotFound("Logs not fount on date :"+date);
+        return all;
     }
 
 }
