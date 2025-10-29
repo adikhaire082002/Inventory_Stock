@@ -9,13 +9,15 @@ import lombok.Setter;
 
 public class UserRequestDto {
 	
+	private String for_admin_login_key_required;
+	
 	private String name;
 	
 	private String email;
 	
 	private String password;
 	
-	private String role;
+	private String[] role;
 	
 	private Long mobile; 
 	

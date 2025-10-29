@@ -12,6 +12,8 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.aditya.inventory.customException.InvalidAdminKey;
+import com.aditya.inventory.customException.InvalidRole;
 import com.aditya.inventory.dto.BaseResponseDto;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -54,6 +56,16 @@ public class ControllerAdvice {
 	@ExceptionHandler(IllegalArgumentException.class)
 	public BaseResponseDto handlerIllegalArgumentException(IllegalArgumentException ex) {
 		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Enter Valid Input", ex.getMessage(), new Date());
+	}
+	
+	@ExceptionHandler(InvalidAdminKey.class)
+	public BaseResponseDto handlerInvalidAdminKey(InvalidAdminKey ex) {
+		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Enter Valid Admin Key for admin SignUp", ex.getMessage(), new Date());
+	}
+	
+	@ExceptionHandler(InvalidRole.class)
+	public BaseResponseDto handlerInvalidRole(InvalidRole ex) {
+		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Enter Valid Role : Admin/Dealer/Customer", ex.getMessage(), new Date());
 	}
 	
 	

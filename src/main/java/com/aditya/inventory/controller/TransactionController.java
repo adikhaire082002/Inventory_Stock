@@ -23,8 +23,8 @@ public class TransactionController {
 	@Autowired
     TransactionService transactionService;
 
-    @PreAuthorize("hasAnyRole('admin')")
-    @GetMapping("/admin/getlogs")
+    @PreAuthorize("hasAnyRole('Admin')")
+    @GetMapping("/Getlogs-admin")
     public BaseResponseDto getLogs(){
         List<TransactionalLog> getlogs = transactionService.getlogs();
         if(getlogs.size() < 1 ) {
@@ -33,8 +33,8 @@ public class TransactionController {
         return new BaseResponseDto(HttpStatus.FOUND,"Logs of Updated stocks",getlogs,new Date());
     }
 
-    @PreAuthorize("hasAnyRole('admin')")
-    @GetMapping("/admin/getlogsByDate")
+    @PreAuthorize("hasAnyRole('Admin')")
+    @GetMapping("/GetlogsByDate-admin")
     public BaseResponseDto getLogsByDate(@RequestParam String date){
         List<TransactionalLog> getlogs = transactionService.getlogsByDate(date);
         if(getlogs.size() < 1 ) {

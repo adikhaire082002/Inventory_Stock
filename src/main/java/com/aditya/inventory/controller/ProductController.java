@@ -20,12 +20,11 @@ import com.aditya.inventory.dto.BaseResponse;
 import com.aditya.inventory.dto.BaseResponseDto;
 import com.aditya.inventory.dto.ProductDto;
 import com.aditya.inventory.entity.Product;
-import com.aditya.inventory.entity.TransactionalLog;
 import com.aditya.inventory.service.ProductService;
 import com.aditya.inventory.service.TransactionService;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/Product")
 public class ProductController {
 	
 	
@@ -38,8 +37,8 @@ public class ProductController {
 	
 	//Admin Access Only
 	
-	@PreAuthorize("hasRole('admin')") 
-	@PostMapping("/admin/addproduct")
+	@PreAuthorize("hasRole('Admin')") 
+	@PostMapping("/Addproduct-Admin")
 	public BaseResponse addProduct(@RequestBody ProductDto productDto){
 		String productName = productDto.getName();
 		
@@ -51,8 +50,8 @@ public class ProductController {
 		
 	}
 	
-	@PreAuthorize("hasRole('admin')")
-	@PutMapping("/admin/updateProduct")
+	@PreAuthorize("hasRole('Admin')")
+	@PutMapping("/UpdateProduct-Admin")
 	public BaseResponseDto updateProduct(@RequestParam Integer id,@RequestBody ProductDto productDto){
 		ProductDto updatedProduct = productService.updateProduct(id,productDto);
 		
@@ -61,8 +60,8 @@ public class ProductController {
 		
 	}
 	
-	@PreAuthorize("hasRole('admin')")
-	@DeleteMapping("/admin/deleteProduct")
+	@PreAuthorize("hasRole('Admin')")
+	@DeleteMapping("/DeleteProduct-Admin")
 	public BaseResponseDto deleteProduct(@RequestParam Integer id){
 		ProductDto deletedProduct = productService.deleteProduct(id);
 	
@@ -72,21 +71,11 @@ public class ProductController {
 	}
 
 
-    @PreAuthorize("hasRole('admin')")
-    @GetMapping("/admin/LowStockAlert")
-    public BaseResponseDto lowStockProducts(){
-        List<Product> products = productService.getProductsWithLowStock();
-        if(products.isEmpty()) {
-            return new BaseResponseDto(HttpStatus.NOT_FOUND,"Product not found with low stocks ",products.toString(),new Date());
-        }
-        return new BaseResponseDto(HttpStatus.FOUND,"Product below products having low stocks: ",products,new Date());
-    }
-	
 	
 	//All User Access
 	
 	
-	@PreAuthorize("hasAnyRole('dealer','Customer','admin')")
+	@PreAuthorize("hasAnyRole('dDaler','Customer','Admin')")
 	@GetMapping("/ViewProduct")
 	public BaseResponseDto getProduct(@RequestParam Integer id){
 		ProductDto productById = productService.getProductById(id);
@@ -95,7 +84,7 @@ public class ProductController {
 		
 	}
 	
-	@PreAuthorize("hasAnyRole('dealer','Customer','admin')")
+	@PreAuthorize("hasAnyRole('Dealer','Customer','Admin')")
 	@GetMapping("/ViewProducts")
 	public BaseResponseDto getProducts(){
 		HashMap<Integer, List<Product>> products = productService.getProducts();
@@ -105,7 +94,7 @@ public class ProductController {
 		return new BaseResponseDto(HttpStatus.FOUND,"All products fectched",products,new Date());
 	}
 	
-	@PreAuthorize("hasAnyRole('dealer','Customer','admin')")
+	@PreAuthorize("hasAnyRole('Dealer','Customer','Admin')")
 	@GetMapping("/ViewProducts/Brands")
 	public BaseResponseDto getProductsByBrand(@RequestParam String brandName){
 		HashMap<Integer, List<Product>> products = productService.getProductsbyBrand(brandName);
@@ -115,7 +104,7 @@ public class ProductController {
 		return new BaseResponseDto(HttpStatus.FOUND,"All products fectched with "+brandName + " this brand",products,new Date());
 	}
 	
-	@PreAuthorize("hasAnyRole('dealer','Customer','admin')")
+	@PreAuthorize("hasAnyRole('Dealer','Customer','Admin')")
 	@GetMapping("/ViewProducts/Category")
 	public BaseResponseDto getProductsByCategory(@RequestParam String categoryName){
 		HashMap<Integer, List<Product>> products = productService.getProductsbyCategory(categoryName);
@@ -126,7 +115,7 @@ public class ProductController {
 	}
 	
 	
-	@PreAuthorize("hasAnyRole('dealer','Customer','admin')")
+	@PreAuthorize("hasAnyRole('Dealer','Customer','Admin')")
 	@GetMapping("/ViewProducts/PriceBeetween")
 	public BaseResponseDto getProductsByCategory(@RequestParam double from , double to){
 		HashMap<Integer, List<Product>> products = productService.getProductsInRange(from,to);
@@ -138,15 +127,6 @@ public class ProductController {
 	
 	
 	
-	//Dealers Access Only
-	
-	@PreAuthorize("hasRole('dealer')")
-	@PutMapping("/dealer/updateStock")
-	public BaseResponseDto updateStock(@RequestParam Integer userID,Integer productId,int stockToUpdate){
-		TransactionalLog updateStock = productService.updateStock(userID,productId,stockToUpdate);
-	
-		return new BaseResponseDto(HttpStatus.FOUND,"Stock updated Successfully by " + stockToUpdate,updateStock,new Date());
-	}
 	
 
 }

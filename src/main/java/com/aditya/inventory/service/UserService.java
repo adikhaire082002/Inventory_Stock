@@ -1,5 +1,6 @@
 package com.aditya.inventory.service;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.aditya.inventory.dto.UserRequestDto;
@@ -18,5 +19,16 @@ public interface UserService {
 	UserResponseDto getUserByEmail(String userNameFromJwtToken);
 
 	UserResponseDto updateUser(UserRequestDto userRequestDto,UserResponseDto responseDto);
+
+	List<UserResponseDto> getDealers();
+	
+	List<UserResponseDto> getAdmins();
+	
+	List<UserResponseDto> getCustomers();
+	
+	HashMap<String,List<UserResponseDto>> getUsersSortByRoles();
+	
+	
+	
 
 }

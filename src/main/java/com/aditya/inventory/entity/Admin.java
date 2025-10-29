@@ -17,11 +17,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
-
+public class Admin {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer user_id;
+	private Integer admin_id;
 	
 	@Column(nullable = false)
 	private String name;
@@ -31,9 +31,6 @@ public class User {
 	
 	@Column(nullable = false)
 	private String password;
-	
-	@Column(nullable = false)
-	private String[] role;
 	
 	@Column(nullable = false,unique=true)
 	private Long mobileNo;
@@ -49,5 +46,7 @@ public class User {
 	
 	private Date updatedAt;
 	
+	@Column(unique = true)
+	private int user_id;
 
 }

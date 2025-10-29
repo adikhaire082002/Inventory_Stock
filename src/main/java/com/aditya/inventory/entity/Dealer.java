@@ -15,13 +15,13 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class User {
-
+@AllArgsConstructor
+public class Dealer {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer user_id;
+	private Integer dealer_id;
 	
 	@Column(nullable = false)
 	private String name;
@@ -31,9 +31,6 @@ public class User {
 	
 	@Column(nullable = false)
 	private String password;
-	
-	@Column(nullable = false)
-	private String[] role;
 	
 	@Column(nullable = false,unique=true)
 	private Long mobileNo;
@@ -49,5 +46,7 @@ public class User {
 	
 	private Date updatedAt;
 	
+	@Column(unique = true)
+	private int user_id;
 
 }

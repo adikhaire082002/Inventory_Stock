@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		com.aditya.inventory.entity.User user = userRepository.findByEmail(username);
 
-		return User.builder().username(user.getEmail()).password(user.getPassword()).roles(user.getRole().getRole())
+		return User.builder().username(user.getEmail()).password(user.getPassword()).roles(user.getRole())
 				.build();
 	}
 }

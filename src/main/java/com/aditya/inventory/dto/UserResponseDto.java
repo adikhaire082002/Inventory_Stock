@@ -15,7 +15,7 @@ private String name;
 	
 	private String email;
 	
-	private String role;
+	private String[] role;
 	
 	private Long mobile; 
 	
