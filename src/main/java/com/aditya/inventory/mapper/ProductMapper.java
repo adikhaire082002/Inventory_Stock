@@ -54,6 +54,7 @@ public class ProductMapper {
 
 		Product product = new Product();
 		product.setBrand(dto.getBrand());
+        product.setImages(dto.getImages());
 		product.setCategories(categories);
 		product.setCreatedAt(dto.getCreatedAt());
 		product.setDescription(dto.getDescription());
