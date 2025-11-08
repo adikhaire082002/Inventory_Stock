@@ -53,7 +53,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request)
         throws ServletException{
             String path = request.getServletPath();
-            return path.startsWith("/auth/") || path.startsWith("/User/signup");
+            return path.startsWith("/auth/") || path.startsWith("/User/signup") || path.startsWith("/User/verify");
 
     }
 

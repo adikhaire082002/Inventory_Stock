@@ -42,7 +42,6 @@ public class UserMapper {
 		dto.setCreatedAt(user.getCreatedAt());
 		dto.setUpdatedAt(user.getUpdatedAt());
 		dto.setEmail(user.getEmail());
-		dto.setStatus(user.isStatus());
 		dto.setMobile(user.getMobileNo());
 		dto.setRole(user.getRole());
 
@@ -101,7 +100,6 @@ public class UserMapper {
 		dealer.setMobileNo(user.getMobileNo());
 		dealer.setCreatedAt(user.getCreatedAt());
 		dealer.setUpdatedAt(user.getUpdatedAt());
-		dealer.setStatus(user.isStatus());
 		dealer.setPassword(passwordEncoder.encode(user.getPassword()));
 		dealer.setUser_id(user.getUser_id());
 
@@ -115,7 +113,6 @@ public class UserMapper {
 		dealer.setMobileNo(user.getMobileNo());
 		dealer.setCreatedAt(user.getCreatedAt());
 		dealer.setUpdatedAt(user.getUpdatedAt());
-		dealer.setStatus(user.isStatus());
 		dealer.setPassword(passwordEncoder.encode(user.getPassword()));
 		dealer.setUser_id(user.getUser_id());
 
@@ -133,7 +130,6 @@ public class UserMapper {
 			admin.setMobileNo(user.getMobileNo());
 			admin.setCreatedAt(user.getCreatedAt());
 			admin.setUpdatedAt(user.getUpdatedAt());
-			admin.setStatus(user.isStatus());
 			admin.setPassword(passwordEncoder.encode(user.getPassword()));
 			admin.setUser_id(user.getUser_id());
 
@@ -147,7 +143,6 @@ public class UserMapper {
 		admin.setMobileNo(user.getMobileNo());
 		admin.setCreatedAt(user.getCreatedAt());
 		admin.setUpdatedAt(user.getUpdatedAt());
-		admin.setStatus(user.isStatus());
 		admin.setPassword(passwordEncoder.encode(user.getPassword()));
 		admin.setUser_id(user.getUser_id());
 
@@ -165,7 +160,6 @@ public class UserMapper {
 				customer.setMobileNo(user.getMobileNo());
 				customer.setCreatedAt(user.getCreatedAt());
 				customer.setUpdatedAt(user.getUpdatedAt());
-				customer.setStatus(user.isStatus());
 				customer.setPassword(passwordEncoder.encode(user.getPassword()));
 				customer.setUser_id(user.getUser_id());
 
@@ -180,7 +174,7 @@ public class UserMapper {
 				customer.setMobileNo(user.getMobileNo());
 				customer.setCreatedAt(user.getCreatedAt());
 				customer.setUpdatedAt(user.getUpdatedAt());
-				customer.setStatus(user.isStatus());
+
 				customer.setPassword(passwordEncoder.encode(user.getPassword()));
 				customer.setUser_id(user.getUser_id());
 

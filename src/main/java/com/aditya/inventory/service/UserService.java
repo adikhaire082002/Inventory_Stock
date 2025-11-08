@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface UserService {
 	
 	UserResponseDto addUser(UserRequestDto userRequestDto);
+
+    void verifyOtp(int userOtp, String email);
 	
 	List<UserResponseDto> getUsers() ;
 

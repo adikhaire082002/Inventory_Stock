@@ -27,7 +27,13 @@ public class UserController {
     @PostMapping("/signup")
     public BaseResponse createUser(@RequestBody UserRequestDto userRequestDto) {
         userService.addUser(userRequestDto);
-        return new BaseResponse(HttpStatus.CREATED, "User added successfully", new Date());
+        return new BaseResponse(HttpStatus.CREATED, "Otp send successfully", new Date());
+    }
+
+    @PostMapping("/verify")
+    public BaseResponse verifyOtp(@RequestParam int otp,@RequestParam String email) {
+        userService.verifyOtp(otp, email);
+        return new BaseResponse(HttpStatus.CREATED, "User Verified Successfully", new Date());
     }
 
 	@DeleteMapping("/delete")

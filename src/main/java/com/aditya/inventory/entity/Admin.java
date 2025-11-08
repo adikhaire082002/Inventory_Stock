@@ -43,8 +43,6 @@ public class Admin {
 	@Column(nullable = false)
 	private String address;
 	
-	private boolean status=true;
-	
 	@Column(nullable = false)
 	private Date createdAt;
 	

@@ -1,16 +1,17 @@
 package com.aditya.inventory.serviceImpl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.aditya.inventory.customException.*;
 import com.aditya.inventory.dto.*;
+import com.aditya.inventory.entity.*;
 import com.aditya.inventory.jwt.JwtUtils;
+import com.aditya.inventory.repository.*;
+import com.aditya.inventory.service.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,15 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import com.aditya.inventory.entity.Admin;
-import com.aditya.inventory.entity.Customer;
-import com.aditya.inventory.entity.Dealer;
-import com.aditya.inventory.entity.User;
 import com.aditya.inventory.mapper.UserMapper;
-import com.aditya.inventory.repository.AdminRepo;
-import com.aditya.inventory.repository.CustomerRepo;
-import com.aditya.inventory.repository.DealerRepo;
-import com.aditya.inventory.repository.UserRepo;
 import com.aditya.inventory.service.UserService;
 
 import io.jsonwebtoken.lang.Arrays;
@@ -53,11 +46,18 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private JwtUtils jwtUtils;
 
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private OtpRepo otpRepo;
+
 	@Value("${adminLoginKey}")
 	String adminKey;
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
 
     //-------------------Sign In Authentication-----------//
     @Override
@@ -81,6 +81,7 @@ public class UserServiceImpl implements UserService {
 
 	// ---------------------Adding User-----------------//
 
+    @Transactional
 	public UserResponseDto addUser(UserRequestDto userRequestDto) {
 
         if(!validateMobileNumber(userRequestDto.getMobile())){
@@ -135,6 +136,7 @@ public class UserServiceImpl implements UserService {
 
 		User user = userMapper.toUser(userRequestDto);
 		user.setCreatedAt(new Date());
+        user.setStatus(false);
 		User savedUser = userRepo.save(user);
 
 		String[] role2 = savedUser.getRole();
@@ -170,10 +172,44 @@ public class UserServiceImpl implements UserService {
 			}
 
 		}
+        int otp = createOpt();
+        Otp otpUser = new Otp();
+        otpUser.setOtp(otp);
+        otpUser.setEmail(user.getEmail());
+        otpRepo.save(otpUser);
 
+
+        emailService.sendMail(user.getEmail(),"Opt for verifivation",otp+"  this is your opt for registration.");
 		return userMapper.toDto(savedUser);
 	}
 
+    //Verify otp
+    public void verifyOtp(int userOtp, String email){
+        if(!validateEmail(email)){
+            throw new InvalidEmail();
+        }
+        User user = userRepo.findByEmail(email);
+        if(user==null){
+            throw new ResourceNotFound("user not found");
+        }
+
+        if(user.isStatus()){
+            throw new AlreadyExits("User already exits with this " +  user.getEmail());
+        }
+
+        Otp byEmail = otpRepo.findByEmail(email);
+        System.out.println(byEmail.getOtp());
+
+        if(userOtp== byEmail.getOtp()){
+
+            user.setStatus(true);
+            userRepo.save(user);
+            otpRepo.delete(byEmail);
+        }
+        else{
+            throw new InvalidInput("Enter valid OTP");
+        }
+    }
 	// ---------------------------Get------------------------------//
 
 	// all
@@ -419,6 +455,13 @@ public class UserServiceImpl implements UserService {
         Pattern pattern = Pattern.compile(gstNoRegex);
         Matcher matcher = pattern.matcher(gstNo);
         return matcher.matches();
+    }
+
+    //Opt generate
+    private int createOpt(){
+        Random random = new Random();
+        int opt = 100000 + random.nextInt(99999);
+        return opt;
     }
 
 

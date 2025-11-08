@@ -45,7 +45,7 @@ public class User {
 	@Column(nullable = false)
 	private String address;
 	
-	private boolean status=true;
+	private boolean status;
 	
 	@Column(nullable = false)
 	private Date createdAt;

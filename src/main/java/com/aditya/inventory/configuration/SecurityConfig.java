@@ -53,7 +53,7 @@ public class SecurityConfig {
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(
 				auth -> auth
-				.requestMatchers("/auth/**","/User/signup", "/inventoryManagement/**","/v3/api-docs/**","/swagger-ui.html","/swagger-ui/**")
+				.requestMatchers("/auth/**","/User/signup","User/verify", "/inventoryManagement/**","/v3/api-docs/**","/swagger-ui.html","/swagger-ui/**")
 				.permitAll()
 				.anyRequest()
 				.authenticated());                                                                          //This endpoints not required any authentication and autherization
