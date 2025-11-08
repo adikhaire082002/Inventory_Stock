@@ -101,6 +101,11 @@ public class GlobalException {
     public BaseResponse handlerInsufficientStocks(InsufficientStocks ex) {
         return new BaseResponse(HttpStatus.BAD_REQUEST,"The quantiy of product are less in stocks ", new Date());
     }
+
+    @ExceptionHandler(UnverifiedEmaIL.class)
+    public BaseResponse handlerUnverifiedEmaIL(UnverifiedEmaIL ex) {
+        return new BaseResponse(HttpStatus.BAD_REQUEST,"Verify email with otp first ", new Date());
+    }
 	
 	
 	

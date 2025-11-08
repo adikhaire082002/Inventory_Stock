@@ -12,8 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -77,5 +76,10 @@ public class ImageServiceImpl implements ImageService {
         productRepo.save(product);
 
         return fileDataList;
+    }
+
+    @Override
+    public InputStream getImage(String path, String filename) throws FileNotFoundException {
+      return null;
     }
 }

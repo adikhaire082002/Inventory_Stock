@@ -68,6 +68,11 @@ public class UserServiceImpl implements UserService {
         if(!validatePassword(loginRequest.getPassword())){
             throw new InvalidPassword();
         }
+
+        User user = userRepo.findByEmail(loginRequest.getEmail());
+        if(!user.isStatus()){
+            throw new UnverifiedEmaIL();
+        }
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail().toLowerCase(),
                         loginRequest.getPassword()));  //check email and password
