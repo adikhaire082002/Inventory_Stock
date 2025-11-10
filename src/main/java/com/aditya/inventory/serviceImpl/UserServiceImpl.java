@@ -462,6 +462,13 @@ public class UserServiceImpl implements UserService {
         return matcher.matches();
     }
 
+    //Validate Name
+    private boolean isValidBasicName(String name) {
+        String regex = "^[a-zA-Z\\s]+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(name);
+        return matcher.matches();
+    }
     //Opt generate
     private int createOpt(){
         Random random = new Random();
