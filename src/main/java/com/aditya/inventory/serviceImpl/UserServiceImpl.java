@@ -99,6 +99,9 @@ public class UserServiceImpl implements UserService {
         if(!validatePassword(userRequestDto.getPassword())){
             throw new InvalidPassword();
         }
+        if(!validBasicName(userRequestDto.getName())){
+            throw new InvalidName();
+        }
 
         if(userRepo.existsByEmail(userRequestDto.getEmail())){
             throw new AlreadyExits("Email " +  userRequestDto.getEmail());
@@ -463,7 +466,7 @@ public class UserServiceImpl implements UserService {
     }
 
     //Validate Name
-    private boolean isValidBasicName(String name) {
+    private boolean validBasicName(String name) {
         String regex = "^[a-zA-Z\\s]+$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(name);

@@ -106,6 +106,11 @@ public class GlobalException {
     public BaseResponse handlerUnverifiedEmaIL(UnverifiedEmaIL ex) {
         return new BaseResponse(HttpStatus.BAD_REQUEST,"Verify email with otp first ", new Date());
     }
+
+    @ExceptionHandler(InvalidName.class)
+    public BaseResponse handlerInvalidName(InvalidName ex) {
+        return new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid name", new Date());
+    }
 	
 	
 	
