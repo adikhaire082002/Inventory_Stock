@@ -34,7 +34,7 @@ public class ImageController {
     @PostMapping("/upload")
     public ResponseEntity<BaseResponseDto> uploadImage(@RequestParam("file") List<MultipartFile> file, Integer product_Id, Authentication authentication)throws IOException {
         List<FileData> fileData = imageService.uploadImages(product_Id, path, file, authentication);
-        BaseResponseDto response= new BaseResponseDto(HttpStatus.CREATED,"Images uploaded successfully",fileData,new Date());
+        BaseResponseDto response= new BaseResponseDto(HttpStatus.OK,"Images uploaded successfully",fileData,new Date());
         return ResponseEntity.ok(response);
     }
 }

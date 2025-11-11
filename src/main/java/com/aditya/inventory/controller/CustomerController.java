@@ -24,7 +24,7 @@ public class CustomerController {
     @PostMapping("/addToCart")
     public ResponseEntity<BaseResponseDto> addProductToCart(@RequestParam Integer product_id, Authentication authentication) {
         Cart cart = customerService.addToCart(product_id, authentication);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.CREATED, "Product Added to cart", cart, new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK, "Product Added to cart", cart, new Date());
         return ResponseEntity.ok(response);
     }
 
@@ -32,7 +32,7 @@ public class CustomerController {
     @PostMapping("/addToCartWithQuantity")
     public ResponseEntity<BaseResponseDto> addProductToCart(@RequestParam Integer product_id,@RequestParam Integer quantity, Authentication authentication) {
         Cart cart = customerService.addToCart(product_id, authentication,quantity);
-        BaseResponseDto response =new BaseResponseDto(HttpStatus.CREATED,"Product Added to cart",cart,new Date());
+        BaseResponseDto response =new BaseResponseDto(HttpStatus.OK,"Product Added to cart",cart,new Date());
         return ResponseEntity.ok(response);
     }
 
@@ -40,7 +40,7 @@ public class CustomerController {
     @PatchMapping("/increaseProductQuantity")
     public ResponseEntity<BaseResponseDto>  increaseQuantityInCart(@RequestParam Integer product_id, Authentication authentication) {
         Cart cart = customerService.addToCart(product_id, authentication);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.CREATED,"Product Quantity increase In cart",cart,new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"Product Quantity increase In cart",cart,new Date());
         return ResponseEntity.ok(response);
     }
 
@@ -48,7 +48,7 @@ public class CustomerController {
     @DeleteMapping("/removeFromCart")
     public ResponseEntity<BaseResponseDto>  removeFromCart(@RequestParam Integer product_id, Authentication authentication) {
         Cart cart = customerService.removeProduct(authentication,product_id);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.CREATED,"Product removed from cart",cart,new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"Product removed from cart",cart,new Date());
         return ResponseEntity.ok(response);
     }
 
@@ -56,7 +56,7 @@ public class CustomerController {
     @PatchMapping("/decreaseProductQuantity")
     public ResponseEntity<BaseResponseDto> decreaseQuantityInCart(@RequestParam Integer product_id, Authentication authentication) {
         Cart cart = customerService.decreaseQuantity(authentication,product_id);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.CREATED,"Product Quantity decrease In cart",cart,new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"Product Quantity decrease In cart",cart,new Date());
         return ResponseEntity.ok(response);
     }
 
@@ -64,7 +64,7 @@ public class CustomerController {
     @GetMapping("/getCart")
     public ResponseEntity<BaseResponseDto> getCart(Authentication authentication) {
         Cart cart = customerService.getCart(authentication);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.CREATED,"Cart as below",cart,new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"Cart as below",cart,new Date());
         return ResponseEntity.ok(response);
     }
 }

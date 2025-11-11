@@ -28,7 +28,7 @@ public class TransactionController {
     @GetMapping("/getLogs")
     public ResponseEntity<BaseResponseDto> getLogs(){
         List<TransactionalLog> getlogs = transactionService.getlogs();
-        BaseResponseDto response =  new BaseResponseDto(HttpStatus.FOUND,"Logs of Updated stocks",getlogs,new Date());
+        BaseResponseDto response =  new BaseResponseDto(HttpStatus.OK,"Logs of Updated stocks",getlogs,new Date());
         return ResponseEntity.ok(response);
     }
 
@@ -36,7 +36,7 @@ public class TransactionController {
     @GetMapping("/getlogsByDate")
     public ResponseEntity<BaseResponseDto> getLogsByDate(@RequestParam String date){
         List<TransactionalLog> getlogs = transactionService.getlogsByDate(date);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND,"Logs of Updated stocks with given the date " + date ,getlogs,new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"Logs of Updated stocks with given the date " + date ,getlogs,new Date());
         return ResponseEntity.ok(response);
     }
 

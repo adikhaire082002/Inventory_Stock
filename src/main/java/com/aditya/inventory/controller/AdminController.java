@@ -33,7 +33,7 @@ public class AdminController {
 	@GetMapping("/AllUsers")
 	public ResponseEntity<BaseResponseDto> getUsers() {
 		List<UserResponseDto> users = userService.getUsers();
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND, "All Users Found ", users, new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK, "All Users Found ", users, new Date());
         return ResponseEntity.ok(response);
 	}
 	
@@ -41,7 +41,7 @@ public class AdminController {
 	@GetMapping("/AllAdmins")
 	public ResponseEntity<BaseResponseDto> getAdmins() {
 		List<UserResponseDto> users = userService.getAdmins();
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND, "All Admins Found ", users, new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK, "All Admins Found ", users, new Date());
         return ResponseEntity.ok(response);
 	}
 		
@@ -49,7 +49,7 @@ public class AdminController {
 	@GetMapping("/AllDealers")
 	public ResponseEntity<BaseResponseDto> getDealers() {
 		List<UserResponseDto> users = userService.getDealers();
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND, "All Dealers Found ", users, new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK, "All Dealers Found ", users, new Date());
         return ResponseEntity.ok(response);
 	}
 	
@@ -57,7 +57,7 @@ public class AdminController {
 	@GetMapping("/AllCustomers")
 	public ResponseEntity<BaseResponseDto> getCustomers() {
 		List<UserResponseDto> users = userService.getCustomers();
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND, "All Customers Found ", users, new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK, "All Customers Found ", users, new Date());
         return ResponseEntity.ok(response);
     }
 	
@@ -65,7 +65,7 @@ public class AdminController {
 	@GetMapping("/AllUsersSortByRoles")
 	public ResponseEntity<BaseResponseDto> getUsersByRoles() {
 		 HashMap<String, List<UserResponseDto>> users = userService.getUsersSortByRoles();
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND, "All Customers Found ", users, new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK, "All Customers Found ", users, new Date());
         return ResponseEntity.ok(response);
 	}
 

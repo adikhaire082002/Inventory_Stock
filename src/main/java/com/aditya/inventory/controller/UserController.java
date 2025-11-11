@@ -28,21 +28,21 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<BaseResponse> createUser(@RequestBody UserRequestDto userRequestDto) {
         userService.addUser(userRequestDto);
-        BaseResponse response = new BaseResponse(HttpStatus.CREATED, "Otp send successfully", new Date());
+        BaseResponse response = new BaseResponse(HttpStatus.OK, "Otp send successfully", new Date());
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/verify")
     public ResponseEntity<BaseResponse> verifyOtp(@RequestParam int otp,@RequestParam String email) {
         userService.verifyOtp(otp, email);
-        BaseResponse response = new BaseResponse(HttpStatus.CREATED, "User Verified Successfully", new Date());
+        BaseResponse response = new BaseResponse(HttpStatus.OK, "User Verified Successfully", new Date());
         return ResponseEntity.ok(response);
     }
 
 	@DeleteMapping("/delete")
 	public ResponseEntity<BaseResponse> deleteUser(@RequestParam String id, HttpServletRequest request) {
         userService.deleteUser(id,request);
-        BaseResponse response = new BaseResponse(HttpStatus.UNAUTHORIZED, "User Deleted ", new Date());
+        BaseResponse response = new BaseResponse(HttpStatus.OK, "User Deleted ", new Date());
         return ResponseEntity.ok(response);
 	}
 	

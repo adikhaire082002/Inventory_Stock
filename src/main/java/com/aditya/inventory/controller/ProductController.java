@@ -33,7 +33,7 @@ public class ProductController {
 	@PostMapping("/addProduct")
 	public ResponseEntity<BaseResponse> addProduct(@RequestBody ProductDto productDto, Authentication authentication) throws IOException {
 		productService.addProduct(productDto,authentication);
-        BaseResponse response = new BaseResponse(HttpStatus.CREATED,"Product Added successfully ",new Date());
+        BaseResponse response = new BaseResponse(HttpStatus.OK,"Product Added successfully ",new Date());
 		return ResponseEntity.ok(response);
 	}
 	
@@ -41,7 +41,7 @@ public class ProductController {
 	@PatchMapping("/updateProduct")
 	public ResponseEntity<BaseResponseDto> updateProduct(@RequestParam Integer id, @RequestBody ProductDto productDto, Authentication authentication){
 		ProductDto updatedProduct = productService.updateProduct(id,productDto,authentication);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.RESET_CONTENT,"Product updated successfully ",updatedProduct,new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"Product updated successfully ",updatedProduct,new Date());
 		return ResponseEntity.ok(response);
 		
 	}
@@ -50,7 +50,7 @@ public class ProductController {
 	@DeleteMapping("/deleteProduct")
 	public ResponseEntity<BaseResponse> deleteProduct(@RequestParam Integer id,Authentication authentication){
 		productService.deleteProduct(id,authentication);
-        BaseResponse response = new BaseResponse(HttpStatus.GONE,"Product Deleted successfully ",new Date());
+        BaseResponse response = new BaseResponse(HttpStatus.OK,"Product Deleted successfully ",new Date());
 		return ResponseEntity.ok(response);
 		
 	}
@@ -68,7 +68,7 @@ public class ProductController {
 	@GetMapping("/viewProducts")
 	public ResponseEntity<BaseResponseDto> getProducts(@RequestParam(defaultValue = "1") Integer page , @RequestParam Integer pageSize) throws FileNotFoundException {
 		Page<ProductDto> products = productService.getProducts(page,pageSize);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND,"All products fetched",products,new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"All products fetched",products,new Date());
 	    return ResponseEntity.ok(response);
     }
 
@@ -77,7 +77,7 @@ public class ProductController {
 	@GetMapping("/viewProducts/Brands")
 	public ResponseEntity<BaseResponseDto> getProductsByBrand(@RequestParam String brandName,@RequestParam(defaultValue = "1") Integer page , @RequestParam Integer pageSize) throws FileNotFoundException {
         Page<ProductDto> products = productService.getProductsbyBrand(brandName,page,pageSize);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND,"All products fetched with "+brandName + " this brand",products,new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"All products fetched with "+brandName + " this brand",products,new Date());
 	    return ResponseEntity.ok(response);
     }
 	
@@ -85,7 +85,7 @@ public class ProductController {
 	@GetMapping("/viewProducts/Category")
 	public ResponseEntity<BaseResponseDto> getProductsByCategory(@RequestParam String categoryName,@RequestParam(defaultValue = "1") Integer page , @RequestParam Integer pageSize) throws FileNotFoundException {
         Page<ProductDto> products = productService.getProductsbyCategory(categoryName,page,pageSize);
-		BaseResponseDto response =  new BaseResponseDto(HttpStatus.FOUND,"All products fetched with "+categoryName + " this category",products,new Date());
+		BaseResponseDto response =  new BaseResponseDto(HttpStatus.OK,"All products fetched with "+categoryName + " this category",products,new Date());
 	    return ResponseEntity.ok(response);
     }
 
@@ -94,7 +94,7 @@ public class ProductController {
 	@GetMapping("/viewProducts/priceBetween")
 	public ResponseEntity<BaseResponseDto> getProductsByCategory(@RequestParam double from , double to,@RequestParam(defaultValue = "1") Integer page , @RequestParam Integer pageSize) throws FileNotFoundException {
         Page<ProductDto> products = productService.getProductsInRange(from,to,page,pageSize);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND,"All products fetched between price range "+from+" to " + to,products,new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"All products fetched between price range "+from+" to " + to,products,new Date());
         return ResponseEntity.ok(response);
     }
 

@@ -33,7 +33,7 @@ public class DealerController {
 	@PatchMapping("/updateStock")
 	public ResponseEntity<BaseResponseDto> updateStock(@RequestParam Integer productId, int stockToUpdate, Authentication authentication) {
 		TransactionalLog updateStock = productService.updateStock(authentication,productId,stockToUpdate);
-		BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND,"Stock updated Successfully by " + stockToUpdate,updateStock,new Date());
+		BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"Stock updated Successfully by " + stockToUpdate,updateStock,new Date());
 	    return ResponseEntity.ok(response);
     }
 
@@ -41,7 +41,7 @@ public class DealerController {
     @GetMapping("/getStocks")
     public ResponseEntity<BaseResponseDto> getStock(Authentication authentication,@RequestParam int page, @RequestParam int pageSize) throws FileNotFoundException {
         Page<ProductDto> stock = dealerService.getStock(authentication, page, pageSize);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND,"All stocks fetched",stock,new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"All stocks fetched",stock,new Date());
         return ResponseEntity.ok(response);
     }
 
@@ -49,7 +49,7 @@ public class DealerController {
     @GetMapping("/LowStockAlert")
     public ResponseEntity<BaseResponseDto> lowStockProducts(@RequestParam int page,int pageSize,Authentication authentication) throws FileNotFoundException {
         Page<ProductDto> products = productService.getProductsWithLowStock(page,pageSize,authentication);
-        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND,"Below products having low stocks: ",products,new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK,"Below products having low stocks: ",products,new Date());
         return ResponseEntity.ok(response);
     }
 
