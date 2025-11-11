@@ -1,5 +1,6 @@
 package com.aditya.inventory.customException;
 
+import java.io.FileNotFoundException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.NoSuchElementException;
@@ -8,6 +9,7 @@ import javax.naming.AuthenticationException;
 
 import com.aditya.inventory.dto.BaseResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,95 +23,119 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalException {
 
 	@ExceptionHandler(AuthenticationException.class )
-	public BaseResponseDto handlerAuthenticationException(AuthenticationException ex) {
-		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Bad Credintials",ex.getMessage(), new Date());
+	public ResponseEntity<BaseResponseDto> handlerAuthenticationException(AuthenticationException ex) {
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.UNAUTHORIZED, "Bad Credintials", ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.UNAUTHORIZED);
 	}
 	
 	@ExceptionHandler(InternalAuthenticationServiceException.class)
-	public BaseResponseDto handlerInternalAuthenticationServiceException(InternalAuthenticationServiceException ex) {
-		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"User not found", ex.getMessage(), new Date());
+	public ResponseEntity<BaseResponseDto> handlerInternalAuthenticationServiceException(InternalAuthenticationServiceException ex) {
+		BaseResponseDto response=  new BaseResponseDto(HttpStatus.UNAUTHORIZED,"User not found", ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.UNAUTHORIZED);
 	}
 	
 	@ExceptionHandler(ResourceNotFound.class)
-	public BaseResponseDto handlerResourceNotFound(ResourceNotFound ex) {
-		return new BaseResponseDto(HttpStatus.NOT_FOUND,"Resource Not Fount", ex.getMessage(), new Date());
+	public ResponseEntity<BaseResponseDto> handlerResourceNotFound(ResourceNotFound ex) {
+        BaseResponseDto response=new  BaseResponseDto(HttpStatus.NOT_FOUND,"Resource Not Fount", ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.NOT_FOUND);
 	}
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public BaseResponseDto handlerNoResourceFoundException(NoResourceFoundException ex) {
-        return new BaseResponseDto(HttpStatus.NOT_FOUND,"Resource Not Fount", ex.getMessage(), new Date());
+    public ResponseEntity<BaseResponseDto> handlerNoResourceFoundException(NoResourceFoundException ex) {
+        BaseResponseDto response= new BaseResponseDto(HttpStatus.NOT_FOUND,"Resource Not Fount", ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.NOT_FOUND);
     }
 
 	
 	@ExceptionHandler(NoSuchElementException.class)
-	public BaseResponseDto handlerNoSuchElementException(NoSuchElementException ex) {
-		return new BaseResponseDto(HttpStatus.NOT_FOUND,"Product not found", ex.getMessage(), new Date());
+	public ResponseEntity<BaseResponseDto> handlerNoSuchElementException(NoSuchElementException ex) {
+        BaseResponseDto response= new BaseResponseDto(HttpStatus.NOT_FOUND,"Product not found", ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.NOT_FOUND);
 	}
 	
 	
 	@ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
-	public BaseResponseDto handlerAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException ex) {
-		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"You dont have access of this url", ex.getMessage(), new Date());
+	public ResponseEntity<BaseResponseDto> handlerAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException ex) {
+        BaseResponseDto response= new BaseResponseDto(HttpStatus.UNAUTHORIZED,"You dont have access of this url", ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.UNAUTHORIZED);
 	}
 	
 	@ExceptionHandler(SQLIntegrityConstraintViolationException.class)
-	public BaseResponseDto handlerSQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException ex) {
-		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"The Email or Mobile is already register", ex.getMessage(), new Date());
+	public ResponseEntity<BaseResponseDto> handlerSQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException ex) {
+        BaseResponseDto response= new BaseResponseDto(HttpStatus.UNAUTHORIZED,"The Email or Mobile is already register", ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.UNAUTHORIZED);
 	}
 	
 	@ExceptionHandler(InvalidInput.class)
-	public BaseResponseDto handlerInvalidInput(InvalidInput ex) {
-		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Invalid Input", ex.getMessage(), new Date());
+	public ResponseEntity<BaseResponseDto> handlerInvalidInput(InvalidInput ex) {
+        BaseResponseDto response= new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Invalid Input", ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.UNAUTHORIZED);
 	}
 	
 	@ExceptionHandler(InvalidAdminKey.class)
-	public BaseResponseDto handlerInvalidAdminKey(InvalidAdminKey ex) {
-		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Enter Valid Admin Key for admin SignUp", ex.getMessage(), new Date());
+	public ResponseEntity<BaseResponseDto> handlerInvalidAdminKey(InvalidAdminKey ex) {
+        BaseResponseDto response= new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Enter Valid Admin Key for admin SignUp", ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.UNAUTHORIZED);
 	}
 	
 	@ExceptionHandler(InvalidRole.class)
-	public BaseResponseDto handlerInvalidRole(InvalidRole ex) {
-		return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Enter Valid Role : Admin/Dealer/Customer", ex.getMessage(), new Date());
+	public ResponseEntity<BaseResponseDto> handlerInvalidRole(InvalidRole ex) {
+        BaseResponseDto response= new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Enter Valid Role : Admin/Dealer/Customer", ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.UNAUTHORIZED);
 	}
 
     @ExceptionHandler(AlreadyExits.class)
-    public BaseResponseDto handlerAlreadyExits(AlreadyExits ex) {
-        return new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Add New Entity", ex.getMessage(), new Date());
+    public ResponseEntity<BaseResponseDto> handlerAlreadyExits(AlreadyExits ex) {
+        BaseResponseDto response= new BaseResponseDto(HttpStatus.UNAUTHORIZED,"Add New Entity", ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(InvalidMobileNumber.class)
-    public BaseResponse handlerInvalidMobileNumber(InvalidMobileNumber ex) {
-        return new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid 10 digit mobile number", new Date());
+    public ResponseEntity<BaseResponse> handlerInvalidMobileNumber(InvalidMobileNumber ex) {
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid 10 digit mobile number", new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidEmail.class)
-    public BaseResponse handlerInvalidEmail(InvalidEmail ex) {
-        return new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid Email which conatail @ and .", new Date());
+    public ResponseEntity<BaseResponse> handlerInvalidEmail(InvalidEmail ex) {
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid Email which contains at least one character, @ and .", new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidGSTNo.class)
-    public BaseResponse handlerInvalidGSTNo(InvalidGSTNo ex) {
-        return new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid GST number \n In this pattern (NN-AAA-AN-NNNNA-NAA)", new Date());
+    public ResponseEntity<BaseResponse> handlerInvalidGSTNo(InvalidGSTNo ex) {
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid GST number In this pattern (NN-AAA-AN-NNNNA-NAA)", new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidPassword.class)
-    public BaseResponse handlerInvalidPassword(InvalidPassword ex) {
-        return new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid password \n Which Contains atleast one \n (A_Z),(a-z),(0-9),(any Special character) \n the length should be 8 characters ", new Date());
+    public ResponseEntity<BaseResponse> handlerInvalidPassword(InvalidPassword ex) {
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid password Which Contains at least one (A_Z),(a-z),(0-9),(any Special character) \n the length should be 8 characters ", new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InsufficientStocks.class)
-    public BaseResponse handlerInsufficientStocks(InsufficientStocks ex) {
-        return new BaseResponse(HttpStatus.BAD_REQUEST,"The quantiy of product are less in stocks ", new Date());
+    public ResponseEntity<BaseResponse> handlerInsufficientStocks(InsufficientStocks ex) {
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"The quantity of product are less in stocks ", new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UnverifiedEmaIL.class)
-    public BaseResponse handlerUnverifiedEmaIL(UnverifiedEmaIL ex) {
-        return new BaseResponse(HttpStatus.BAD_REQUEST,"Verify email with otp first ", new Date());
+    public ResponseEntity<BaseResponse> handlerUnverifiedEmaIL(UnverifiedEmaIL ex) {
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Verify email with otp first ", new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(InvalidName.class)
-    public BaseResponse handlerInvalidName(InvalidName ex) {
-        return new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid name", new Date());
+    public ResponseEntity<BaseResponse> handlerInvalidName(InvalidName ex) {
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid name", new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<BaseResponse> handlerFileNotFoundException(FileNotFoundException ex) {
+        BaseResponse response= new BaseResponse(HttpStatus.NOT_FOUND,"File not Found", new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.NOT_FOUND);
     }
 	
 	

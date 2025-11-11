@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -79,7 +80,13 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public InputStream getImage(String path, String filename) throws FileNotFoundException {
-      return null;
+    public String getImage(FileData fileData) throws FileNotFoundException {
+       String url = ServletUriComponentsBuilder
+               .fromCurrentContextPath()
+               .path("/")
+               .path(fileData.getFilePath())
+               .toUriString();
+
+       return url;
     }
 }

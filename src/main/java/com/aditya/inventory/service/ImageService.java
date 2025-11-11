@@ -15,6 +15,6 @@ public interface ImageService {
 
     List<FileData> uploadImages(Integer productId,String path, List<MultipartFile> file, Authentication authentication)throws IOException;
 
-    InputStream getImage(String path,String filename) throws FileNotFoundException;
+    String getImage(FileData fileData) throws FileNotFoundException;
 
 }

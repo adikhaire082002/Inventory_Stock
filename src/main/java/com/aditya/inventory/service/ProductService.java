@@ -1,5 +1,6 @@
 package com.aditya.inventory.service;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -26,24 +27,24 @@ public interface ProductService {
 	void existsByName(String name);
 	
 	//      ---ID
-	Product getProductById(Integer id);
+	ProductDto getProductById(Integer id) throws FileNotFoundException;
 	
 	//GET
-	Page<Product> getProducts(int page, int pageSize);
+	Page<ProductDto> getProducts(int page, int pageSize) throws FileNotFoundException;
 	 
 	//      --BRAND NAME
-    Page<Product> getProductsbyBrand(String brandName,int page, int pageSize);
+    Page<ProductDto> getProductsbyBrand(String brandName,int page, int pageSize) throws FileNotFoundException;
 	
 	//      --CATEGORY
-    Page<Product> getProductsbyCategory(String categoryName,int page, int pageSize);
+    Page<ProductDto> getProductsbyCategory(String categoryName,int page, int pageSize) throws FileNotFoundException;
 	
 	//      --IN RANGE
-    Page<Product> getProductsInRange(double from ,double to,int page, int pageSize);
+    Page<ProductDto> getProductsInRange(double from ,double to,int page, int pageSize) throws FileNotFoundException;
 	
 	//LOW STOCK
-    Page<Product> getProductsWithLowStock(int page, int pageSize,Authentication authentication);
+    Page<ProductDto> getProductsWithLowStock(int page, int pageSize,Authentication authentication) throws FileNotFoundException;
 
-    Page<Product> getProductsByName(String name, int page, int pageSize);
+    Page<ProductDto> getProductsByName(String name, int page, int pageSize) throws FileNotFoundException;
 	
 	//DELETE
 	boolean deleteProduct(Integer id,Authentication authentication);

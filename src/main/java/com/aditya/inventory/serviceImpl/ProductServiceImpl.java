@@ -1,5 +1,6 @@
 package com.aditya.inventory.serviceImpl;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,10 +16,7 @@ import com.aditya.inventory.repository.UserRepo;
 import com.aditya.inventory.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -167,72 +165,85 @@ public class ProductServiceImpl implements ProductService{
 	}
 
 	// ByID
-	public Product getProductById(Integer id) {
+	public ProductDto getProductById(Integer id) throws FileNotFoundException {
 		Product product = productRepo.findById(id).get();
         if(productRepo.findById(id).isEmpty()) throw new ResourceNotFound("Product not found");
 		ProductDto productDto = productMapper.toDto(product);
-		return product;
+        productDto.setImages(getImages(product));
+		return productDto;
 
 	}
 
 	// ALL
-	public Page<Product> getProducts(int page, int pageSize) {
+	public Page<ProductDto> getProducts(int page, int pageSize) throws FileNotFoundException {
         Pageable pageable = PageRequest.of(page,pageSize);
 		Page<Product> products = productRepo.findAll(pageable);
 	    if (products == null || products.isEmpty()) throw new ResourceNotFound("Product not added yet");
-		return products;
+        return getProductDtos(pageable, products);
 
     }
 	
 	//filtering
 	
-	public Page<Product> getProductsbyBrand(String brandName,int page, int pageSize) {
+	public Page<ProductDto> getProductsbyBrand(String brandName,int page, int pageSize) throws FileNotFoundException {
         Pageable pageable = PageRequest.of(page,pageSize);
         Page<Product> products = productRepo.findByBrand(brandName,pageable);
         if (products == null || products.isEmpty()) throw new ResourceNotFound("Product not found of "+ brandName +" this brand");
-		return products;
+        return getProductDtos(pageable, products);
 
-	}
+    }
 
 	
-	public Page<Product> getProductsbyCategory(String categoryName,int page, int pageSize) {
+	public Page<ProductDto> getProductsbyCategory(String categoryName,int page, int pageSize) throws FileNotFoundException {
         Pageable pageable = PageRequest.of(page,pageSize);
         Page<Product> products = productRepo.findByCategories_Name(categoryName,pageable);
         if (products == null || products.isEmpty()) throw new ResourceNotFound("Product not fount of category  " + categoryName);
-		return products;
+        return getProductDtos(pageable, products);
 
-	}
+    }
 	
 	
-	public Page<Product> getProductsWithLowStock(int page, int pageSize,Authentication authentication) {
+	public Page<ProductDto> getProductsWithLowStock(int page, int pageSize,Authentication authentication) throws FileNotFoundException {
         String name = authentication.getName();
         Dealer dealer = dealerRepo.findByEmail(name);
         Pageable pageable = PageRequest.of(page,pageSize);
         Page<Product> products = productRepo.getLowStockProducts(pageable,dealer);
         if (products == null || products.isEmpty()) throw new ResourceNotFound("No low Stock products found");
-		return products;
-	}
+        return getProductDtos(pageable, products);
+    }
 
     @Override
-    public Page<Product> getProductsByName(String name, int page, int pageSize) {
+    public Page<ProductDto> getProductsByName(String name, int page, int pageSize) throws FileNotFoundException {
         Pageable pageable = PageRequest.of(page,pageSize);
         Page<Product> products = productRepo.findByName(name,pageable);
         if (products == null || products.isEmpty()) throw new ResourceNotFound("Product not found of "+ name +" this Name");
-        return products;
+        return getProductDtos(pageable, products);
     }
 
     //Sort
 	
-	public Page<Product> getProductsInRange(double from ,double to,int page, int pageSize) {
+	public Page<ProductDto> getProductsInRange(double from ,double to,int page, int pageSize) throws FileNotFoundException {
         Pageable pageable = PageRequest.of(page,pageSize);
         Page<Product> products = productRepo.findByPriceBetween(from,to,pageable);
         if (products == null || products.isEmpty()) throw new ResourceNotFound("Product not fount in range "+from+" - "+to);
-		return products;
+        return getProductDtos(pageable, products);
 
-	}
-	
+    }
 
-	//--------------------------- Delete-----------------------------//
+    private Page<ProductDto> getProductDtos(Pageable pageable, Page<Product> products) throws FileNotFoundException {
+        List<ProductDto> productDtos = new ArrayList<>();
+        for (Product product : products) {
+            ProductDto dto = productMapper.toDto(product);
+            List<String> images = getImages(product);
+            dto.setImages(images);
+
+            productDtos.add(dto);
+        }
+        return new PageImpl<ProductDto>(productDtos,pageable,products.getTotalElements());
+    }
+
+
+    //--------------------------- Delete-----------------------------//
 
 	public boolean deleteProduct(Integer id,Authentication authentication) {
         String name = authentication.getName();
@@ -248,6 +259,23 @@ public class ProductServiceImpl implements ProductService{
 		return true;
 
 	}
+
+    //For images
+
+    private List<String> getImages(Product product) throws FileNotFoundException {
+        List<String> images = new ArrayList<>();
+        List<FileData> images1 = product.getImages();
+        if(images1 == null || images1.isEmpty()) {
+            String image  =  "No images added yet";
+            images.add(image);
+        }else {
+            for (FileData fileData : images1) {
+                String image = imageService.getImage(fileData);
+                images.add(image);
+            }
+        }
+        return images;
+    }
 
 	
 	//---------------------For Pagination--------------------//

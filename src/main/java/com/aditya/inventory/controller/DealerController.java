@@ -1,12 +1,15 @@
 package com.aditya.inventory.controller;
 
+import java.io.FileNotFoundException;
 import java.util.Date;
 
+import com.aditya.inventory.dto.ProductDto;
 import com.aditya.inventory.entity.Product;
 import com.aditya.inventory.service.DealerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -28,23 +31,26 @@ public class DealerController {
 	
 	@PreAuthorize("hasRole('Dealer')")
 	@PatchMapping("/updateStock")
-	public BaseResponseDto updateStock(@RequestParam Integer productId, int stockToUpdate, Authentication authentication) {
+	public ResponseEntity<BaseResponseDto> updateStock(@RequestParam Integer productId, int stockToUpdate, Authentication authentication) {
 		TransactionalLog updateStock = productService.updateStock(authentication,productId,stockToUpdate);
-		return new BaseResponseDto(HttpStatus.FOUND,"Stock updated Successfully by " + stockToUpdate,updateStock,new Date());
-	}
+		BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND,"Stock updated Successfully by " + stockToUpdate,updateStock,new Date());
+	    return ResponseEntity.ok(response);
+    }
 
     @PreAuthorize("hasRole('Dealer')")
     @GetMapping("/getStocks")
-    public BaseResponseDto getStock(Authentication authentication,@RequestParam int page, @RequestParam int pageSize) {
-        Page<Product> stock = dealerService.getStock(authentication, page, pageSize);
-        return new BaseResponseDto(HttpStatus.FOUND,"All stocks fetched",stock,new Date());
+    public ResponseEntity<BaseResponseDto> getStock(Authentication authentication,@RequestParam int page, @RequestParam int pageSize) throws FileNotFoundException {
+        Page<ProductDto> stock = dealerService.getStock(authentication, page, pageSize);
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND,"All stocks fetched",stock,new Date());
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('Dealer')")
     @GetMapping("/LowStockAlert")
-    public BaseResponseDto lowStockProducts(@RequestParam int page,int pageSize,Authentication authentication) {
-        Page<Product> products = productService.getProductsWithLowStock(page,pageSize,authentication);
-        return new BaseResponseDto(HttpStatus.FOUND,"Product below products having low stocks: ",products,new Date());
+    public ResponseEntity<BaseResponseDto> lowStockProducts(@RequestParam int page,int pageSize,Authentication authentication) throws FileNotFoundException {
+        Page<ProductDto> products = productService.getProductsWithLowStock(page,pageSize,authentication);
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND,"Below products having low stocks: ",products,new Date());
+        return ResponseEntity.ok(response);
     }
 
 

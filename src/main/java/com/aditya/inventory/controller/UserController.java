@@ -5,6 +5,7 @@ import java.util.Date;
 import com.aditya.inventory.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.aditya.inventory.dto.BaseResponse;
@@ -25,28 +26,31 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/signup")
-    public BaseResponse createUser(@RequestBody UserRequestDto userRequestDto) {
+    public ResponseEntity<BaseResponse> createUser(@RequestBody UserRequestDto userRequestDto) {
         userService.addUser(userRequestDto);
-        return new BaseResponse(HttpStatus.CREATED, "Otp send successfully", new Date());
+        BaseResponse response = new BaseResponse(HttpStatus.CREATED, "Otp send successfully", new Date());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/verify")
-    public BaseResponse verifyOtp(@RequestParam int otp,@RequestParam String email) {
+    public ResponseEntity<BaseResponse> verifyOtp(@RequestParam int otp,@RequestParam String email) {
         userService.verifyOtp(otp, email);
-        return new BaseResponse(HttpStatus.CREATED, "User Verified Successfully", new Date());
+        BaseResponse response = new BaseResponse(HttpStatus.CREATED, "User Verified Successfully", new Date());
+        return ResponseEntity.ok(response);
     }
 
 	@DeleteMapping("/delete")
-	public BaseResponse deleteUser(@RequestParam String id, HttpServletRequest request) {
+	public ResponseEntity<BaseResponse> deleteUser(@RequestParam String id, HttpServletRequest request) {
         userService.deleteUser(id,request);
-		return new BaseResponse(HttpStatus.UNAUTHORIZED, "User Deleted ", new Date());
-
+        BaseResponse response = new BaseResponse(HttpStatus.UNAUTHORIZED, "User Deleted ", new Date());
+        return ResponseEntity.ok(response);
 	}
 	
 	@PatchMapping("/update")
-	public BaseResponseDto updateUser(@RequestBody UserRequestDto userRequestDto,HttpServletRequest request) {
+	public ResponseEntity<BaseResponseDto> updateUser(@RequestBody UserRequestDto userRequestDto,HttpServletRequest request) {
 		UserResponseDto updateUser = userService.updateUser(userRequestDto,request);
-		return new BaseResponseDto(HttpStatus.OK, "User update successfully",updateUser, new Date());
-	}
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.OK, "User update successfully",updateUser, new Date());
+	    return ResponseEntity.ok(response);
+    }
 
 }

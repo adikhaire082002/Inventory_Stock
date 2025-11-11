@@ -4,6 +4,7 @@ import com.aditya.inventory.service.EmailService;
 import com.aditya.inventory.serviceImpl.EmailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.aditya.inventory.dto.BaseResponse;
@@ -36,16 +37,17 @@ public class AuthController {
 
 	//--------------User Sign In----------------------//
 	@PostMapping("/signin")
-    public BaseResponseDto authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<BaseResponseDto> authenticateUser(@RequestBody LoginRequest loginRequest) {
        LoginResponse response =  userService.authenticateUser(loginRequest);
-		return new BaseResponseDto(HttpStatus.OK,"Login Successfully",response,new Date());
+		BaseResponseDto responseDto = new BaseResponseDto(HttpStatus.OK,"Login Successfully",response,new Date());
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/sendMail")
-    public BaseResponseDto sendMail(@RequestParam String to,String subject,String content) {
+    public ResponseEntity<BaseResponseDto> sendMail(@RequestParam String to,String subject,String content) {
         emailService.sendMail(to, subject, content);
-        return new BaseResponseDto(HttpStatus.OK,"Mail Sent",null,new Date());
-
+        BaseResponseDto responseDto = new BaseResponseDto(HttpStatus.OK,"Mail Sent",null,new Date());
+        return ResponseEntity.ok(responseDto);
     }
 
 }

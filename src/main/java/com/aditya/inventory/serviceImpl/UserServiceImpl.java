@@ -99,9 +99,11 @@ public class UserServiceImpl implements UserService {
         if(!validatePassword(userRequestDto.getPassword())){
             throw new InvalidPassword();
         }
-        if(!validBasicName(userRequestDto.getName())){
+        if(!validBasicName(userRequestDto.getName()) || userRequestDto.getName().isEmpty() || userRequestDto.getName().trim().isEmpty()){
             throw new InvalidName();
         }
+
+
 
         if(userRepo.existsByEmail(userRequestDto.getEmail())){
             throw new AlreadyExits("Email " +  userRequestDto.getEmail());
@@ -303,6 +305,10 @@ public class UserServiceImpl implements UserService {
            }
        }
 
+        if(!validBasicName(userRequestDto.getName()) || userRequestDto.getName().isEmpty() || userRequestDto.getName().trim().isEmpty()){
+            throw new InvalidName();
+        }
+
         if(userRepo.existsByEmail(userRequestDto.getEmail())){
             throw new AlreadyExits("Email " +  userRequestDto.getEmail());
         }
@@ -443,7 +449,7 @@ public class UserServiceImpl implements UserService {
 
     //Email pattern
     private boolean validateEmail(String email) {
-        String emailRegex = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$";
+        String emailRegex = "^[a-zA-Z][a-zA-Z0-9+_.-]*@[a-zA-Z0-9.-]+$";
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();

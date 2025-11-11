@@ -5,17 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aditya.inventory.dto.BaseResponseDto;
 import com.aditya.inventory.dto.UserResponseDto;
-import com.aditya.inventory.entity.Product;
 import com.aditya.inventory.service.ProductService;
 import com.aditya.inventory.service.UserService;
 
@@ -33,37 +31,42 @@ public class AdminController {
 	
 	@PreAuthorize("hasRole('Admin')")
 	@GetMapping("/AllUsers")
-	public BaseResponseDto getUsers() {
+	public ResponseEntity<BaseResponseDto> getUsers() {
 		List<UserResponseDto> users = userService.getUsers();
-		return new BaseResponseDto(HttpStatus.FOUND, "All Users Found ", users, new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND, "All Users Found ", users, new Date());
+        return ResponseEntity.ok(response);
 	}
 	
 	@PreAuthorize("hasRole('Admin')")
 	@GetMapping("/AllAdmins")
-	public BaseResponseDto getAdmins() {
+	public ResponseEntity<BaseResponseDto> getAdmins() {
 		List<UserResponseDto> users = userService.getAdmins();
-		return new BaseResponseDto(HttpStatus.FOUND, "All Admins Found ", users, new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND, "All Admins Found ", users, new Date());
+        return ResponseEntity.ok(response);
 	}
 		
 	@PreAuthorize("hasRole('Admin')")
 	@GetMapping("/AllDealers")
-	public BaseResponseDto getDealers() {
+	public ResponseEntity<BaseResponseDto> getDealers() {
 		List<UserResponseDto> users = userService.getDealers();
-		return new BaseResponseDto(HttpStatus.FOUND, "All Dealers Found ", users, new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND, "All Dealers Found ", users, new Date());
+        return ResponseEntity.ok(response);
 	}
 	
 	@PreAuthorize("hasRole('Admin')")
 	@GetMapping("/AllCustomers")
-	public BaseResponseDto getCustomers() {
+	public ResponseEntity<BaseResponseDto> getCustomers() {
 		List<UserResponseDto> users = userService.getCustomers();
-		return new BaseResponseDto(HttpStatus.FOUND, "All Customers Found ", users, new Date());
-	}
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND, "All Customers Found ", users, new Date());
+        return ResponseEntity.ok(response);
+    }
 	
 	@PreAuthorize("hasRole('Admin')")
 	@GetMapping("/AllUsersSortByRoles")
-	public BaseResponseDto getUsersByRoles() {
+	public ResponseEntity<BaseResponseDto> getUsersByRoles() {
 		 HashMap<String, List<UserResponseDto>> users = userService.getUsersSortByRoles();
-		return new BaseResponseDto(HttpStatus.FOUND, "All Customers Found ", users, new Date());
+        BaseResponseDto response = new BaseResponseDto(HttpStatus.FOUND, "All Customers Found ", users, new Date());
+        return ResponseEntity.ok(response);
 	}
 
 
