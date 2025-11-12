@@ -98,7 +98,7 @@ public class GlobalException {
 
     @ExceptionHandler(InvalidEmail.class)
     public ResponseEntity<BaseResponse> handlerInvalidEmail(InvalidEmail ex) {
-        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid Email which contains at least one character, @ and .", new Date());
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid Email which contains at least one character @ and .", new Date());
         return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
     }
 
@@ -136,6 +136,12 @@ public class GlobalException {
     public ResponseEntity<BaseResponse> handlerFileNotFoundException(FileNotFoundException ex) {
         BaseResponse response= new BaseResponse(HttpStatus.NOT_FOUND,"File not Found", new Date());
         return new ResponseEntity<BaseResponse>(response,HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidAddress.class)
+    public ResponseEntity<BaseResponse> handlerInvalidAddress(InvalidAddress ex) {
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid address", new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
     }
 	
 	

@@ -103,6 +103,10 @@ public class UserServiceImpl implements UserService {
             throw new InvalidName();
         }
 
+        if(!validateAddress(userRequestDto.getAddress()) || userRequestDto.getAddress().isEmpty() || userRequestDto.getAddress().trim().isEmpty()){
+            throw new InvalidAddress();
+        }
+
 
 
         if(userRepo.existsByEmail(userRequestDto.getEmail())){
@@ -305,9 +309,17 @@ public class UserServiceImpl implements UserService {
            }
        }
 
-        if(!validBasicName(userRequestDto.getName()) || userRequestDto.getName().isEmpty() || userRequestDto.getName().trim().isEmpty()){
-            throw new InvalidName();
-        }
+       if(userRequestDto.getName()!=null) {
+           if (!validBasicName(userRequestDto.getName()) || userRequestDto.getName().isEmpty() || userRequestDto.getName().trim().isEmpty()) {
+               throw new InvalidName();
+           }
+       }
+
+       if(userRequestDto.getAddress() != null) {
+           if (!validateAddress(userRequestDto.getAddress()) || userRequestDto.getAddress().isEmpty() || userRequestDto.getAddress().trim().isEmpty()) {
+               throw new InvalidAddress();
+           }
+       }
 
         if(userRepo.existsByEmail(userRequestDto.getEmail())){
             throw new AlreadyExits("Email " +  userRequestDto.getEmail());
@@ -478,6 +490,16 @@ public class UserServiceImpl implements UserService {
         Matcher matcher = pattern.matcher(name);
         return matcher.matches();
     }
+
+    //validate address
+    private boolean validateAddress(String name) {
+        String regex = "^(?=.*[A-Za-z])[A-Za-z0-9-,.&]+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(name);
+        return matcher.matches();
+    }
+
+
     //Opt generate
     private int createOpt(){
         Random random = new Random();

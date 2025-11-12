@@ -27,8 +27,6 @@ public class UserRequestDto {
 
     private String gstNo;
 	
-	private boolean status;
-	
 	
 	
 
