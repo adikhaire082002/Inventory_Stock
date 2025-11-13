@@ -53,12 +53,12 @@ public class UserMapper {
 	
 	public User toUser(UserRequestDto requestDto, User user) {
         if(requestDto.getName()!=null){
-            if(requestDto.getName().isEmpty()){
+            if(!requestDto.getName().isEmpty()){
                 user.setName(requestDto.getName());
             }
         }
         if(requestDto.getAddress()!=null){
-            if(requestDto.getAddress().isEmpty()){
+            if(!requestDto.getAddress().isEmpty()){
                 user.setAddress(requestDto.getAddress());
             }
         }

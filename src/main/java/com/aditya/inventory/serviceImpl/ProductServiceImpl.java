@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import com.aditya.inventory.customException.AlreadyExits;
 import com.aditya.inventory.customException.InsufficientStocks;
@@ -27,18 +29,17 @@ import com.aditya.inventory.repository.CategoryRepo;
 import com.aditya.inventory.repository.ProductRepo;
 import org.springframework.web.multipart.MultipartFile;
 
-
 @Service
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
 
-	@Autowired
-	ProductRepo productRepo;
+    @Autowired
+    ProductRepo productRepo;
 
-	@Autowired
-	CategoryRepo categoryRepo;
+    @Autowired
+    CategoryRepo categoryRepo;
 
-	@Autowired
-	ProductMapper productMapper;
+    @Autowired
+    ProductMapper productMapper;
 
     @Autowired
     ImageService imageService;
@@ -46,8 +47,8 @@ public class ProductServiceImpl implements ProductService{
     @Autowired
     DealerService dealerService;
 
-	@Autowired
-	TransactionService transactionService;
+    @Autowired
+    TransactionService transactionService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -60,53 +61,62 @@ public class ProductServiceImpl implements ProductService{
 
     //--------------- Create and Updates----------------//
 
-	
-	//create
-	public ProductDto addProduct(ProductDto productDto, Authentication authentication) throws IOException {
+    // create
+    public ProductDto addProduct(ProductDto productDto, Authentication authentication) throws IOException {
         String dealerName = authentication.getName();
         Dealer dealer = dealerRepo.findByEmail(dealerName);
+        if (dealer == null) {
+            throw new ResourceNotFound("Dealer not found");
+        }
+
         existsByName(productDto.getName());
-        newCategory(productDto);
+
+        if (productDto.getCategories() != null && !productDto.getCategories().isEmpty()) {
+            newCategory(productDto);
+        }
 
         Product product = productMapper.toProduct(productDto);
 
         product.setDealer(dealer);
-		product.setCreatedAt(new Date());
+        product.setCreatedAt(new Date());
 
-		Product save = productRepo.save(product);
+        Product save = productRepo.save(product);
 
-		return productMapper.toDto(save);
+        return productMapper.toDto(save);
+    }
 
-	}
-
-    //Update
-	public ProductDto updateProduct(Integer id, ProductDto productDto,Authentication authentication) {
+    // Update
+    public ProductDto updateProduct(Integer id, ProductDto productDto, Authentication authentication) {
 
         String name = authentication.getName();
         Dealer dealer = dealerRepo.findByEmail(name);
-        if(productDto.getCategories()!=null ) {
-            if (!productDto.getCategories().isEmpty()) {
-                newCategory(productDto);
-            }
+        if (dealer == null) {
+            throw new ResourceNotFound("Dealer not found");
         }
 
-        Product	product = productRepo.findById(id).get();
-        if(productRepo.findById(id).isEmpty()) throw new ResourceNotFound("Product not found");
-
-        if( !product.getDealer().getDealer_id().equals(dealer.getDealer_id())){
-            throw new AuthenticationCredentialsNotFoundException("Dealer is different for this porduct");
+        if (productDto.getCategories() != null && !productDto.getCategories().isEmpty()) {
+            newCategory(productDto);
         }
 
-        Product	product2 = productMapper.toProduct(productDto, product);
+        Optional<Product> productOpt = productRepo.findById(id);
+        if (productOpt.isEmpty()) throw new ResourceNotFound("Product not found");
+
+        Product product = productOpt.get();
+
+        if (!Objects.equals(product.getDealer().getDealer_id(), dealer.getDealer_id())) {
+            throw new AuthenticationCredentialsNotFoundException("Dealer is different for this product");
+        }
+
+        Product product2 = productMapper.toProduct(productDto, product);
         product2.setDealer(dealer);
         product2.setUpdatedAt(new Date());
-			productRepo.save(product2);
+        productRepo.save(product2);
 
-		return productMapper.toDto(product2);
+        return productMapper.toDto(product2);
 
-	}
+    }
 
-    //Check categories and new
+    // Check categories and new
     private void newCategory(ProductDto productDto) {
         List<String> categories = productDto.getCategories();
         for (String category : categories) {
@@ -120,112 +130,122 @@ public class ProductServiceImpl implements ProductService{
 
 
     //-------------------------- Transaction----------------------//
-	
-		//Stock Update
-		public TransactionalLog updateStock(Authentication authentication,Integer productId, int stockToUpdate) {
 
-            String email = authentication.getName();
-            Dealer dealer = dealerRepo.findByEmail(email);
-            if(productRepo.findById(productId).isEmpty()) throw new ResourceNotFound("Product not found");
+    // Stock Update
+    public TransactionalLog updateStock(Authentication authentication, Integer productId, int stockToUpdate) {
 
-
-            Product	product = productRepo.findById(productId).get();
-
-            if( !product.getDealer().getDealer_id().equals(dealer.getDealer_id())){
-                throw new AuthenticationCredentialsNotFoundException("Dealer is different for this porduct");
-            }
-
-            if((int)product.getQuantity()+stockToUpdate<0){
-                throw new InsufficientStocks();
-            }
-
-            product.setQuantity(product.getQuantity() + stockToUpdate);
-            product.setUpdatedAt(new Date());
-
-			TransactionalLog log = new TransactionalLog();
-			log.setDealer_id(dealer.getDealer_id());
-			log.setProductId(productId);
-			String type = stockToUpdate > 0 ? "Increase" : "Decrease";
-			log.setChangeType(type);
-
-            log.setQuantityChange(stockToUpdate);
-			productRepo.save(product);
-			TransactionalLog log2 = transactionService.createLog(log);
-			return log2;
-
-		}
-
-	//-----------------------Finds----------------------------//
-
-	// By name
-	public void existsByName(String name) {
-        if(productRepo.existsByName(name)){
-           throw new AlreadyExits(name+" this Product ");
+        String email = authentication.getName();
+        Dealer dealer = dealerRepo.findByEmail(email);
+        if (dealer == null) {
+            throw new ResourceNotFound("Dealer not found");
         }
-	}
 
-	// ByID
-	public ProductDto getProductById(Integer id) throws FileNotFoundException {
-		Product product = productRepo.findById(id).get();
-        if(productRepo.findById(id).isEmpty()) throw new ResourceNotFound("Product not found");
-		ProductDto productDto = productMapper.toDto(product);
+        Optional<Product> productOpt = productRepo.findById(productId);
+        if (productOpt.isEmpty()) throw new ResourceNotFound("Product not found");
+
+        Product product = productOpt.get();
+
+        if (!Objects.equals(product.getDealer().getDealer_id(), dealer.getDealer_id())) {
+            throw new AuthenticationCredentialsNotFoundException("Dealer is different for this product");
+        }
+
+        if ((int) product.getQuantity() + stockToUpdate < 0) {
+            throw new InsufficientStocks();
+        }
+
+        product.setQuantity(product.getQuantity() + stockToUpdate);
+        product.setUpdatedAt(new Date());
+
+        TransactionalLog log = new TransactionalLog();
+        log.setDealer_id(dealer.getDealer_id());
+        log.setProductId(productId);
+        String type = stockToUpdate > 0 ? "Increase" : "Decrease";
+        log.setChangeType(type);
+
+        log.setQuantityChange(stockToUpdate);
+        productRepo.save(product);
+        TransactionalLog log2 = transactionService.createLog(log);
+        return log2;
+
+    }
+
+    //-----------------------Finds----------------------------//
+
+    // By name
+    public void existsByName(String name) {
+        if (productRepo.existsByName(name)) {
+            throw new AlreadyExits(name + " this Product ");
+        }
+    }
+
+    // ByID
+    public ProductDto getProductById(Integer id) throws FileNotFoundException {
+        Optional<Product> productOpt = productRepo.findById(id);
+        if (productOpt.isEmpty()) throw new ResourceNotFound("Product not found");
+        Product product = productOpt.get();
+        ProductDto productDto = productMapper.toDto(product);
         productDto.setImages(getImages(product));
-		return productDto;
-
-	}
-
-	// ALL
-	public Page<ProductDto> getProducts(int page, int pageSize) throws FileNotFoundException {
-        Pageable pageable = PageRequest.of(page,pageSize);
-		Page<Product> products = productRepo.findAll(pageable);
-	    if (products == null || products.isEmpty()) throw new ResourceNotFound("Product not added yet");
-        return getProductDtos(pageable, products);
+        return productDto;
 
     }
-	
-	//filtering
-	
-	public Page<ProductDto> getProductsbyBrand(String brandName,int page, int pageSize) throws FileNotFoundException {
-        Pageable pageable = PageRequest.of(page,pageSize);
-        Page<Product> products = productRepo.findByBrand(brandName,pageable);
-        if (products == null || products.isEmpty()) throw new ResourceNotFound("Product not found of "+ brandName +" this brand");
+
+    // ALL
+    public Page<ProductDto> getProducts(int page, int pageSize) throws FileNotFoundException {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Product> products = productRepo.findAll(pageable);
+        if (products == null || products.isEmpty()) throw new ResourceNotFound("Product not added yet");
         return getProductDtos(pageable, products);
 
     }
 
-	
-	public Page<ProductDto> getProductsbyCategory(String categoryName,int page, int pageSize) throws FileNotFoundException {
-        Pageable pageable = PageRequest.of(page,pageSize);
-        Page<Product> products = productRepo.findByCategories_Name(categoryName,pageable);
-        if (products == null || products.isEmpty()) throw new ResourceNotFound("Product not fount of category  " + categoryName);
+    // filtering
+
+    public Page<ProductDto> getProductsbyBrand(String brandName, int page, int pageSize) throws FileNotFoundException {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Product> products = productRepo.findByBrand(brandName, pageable);
+        if (products == null || products.isEmpty())
+            throw new ResourceNotFound("Product not found of " + brandName + " this brand");
         return getProductDtos(pageable, products);
 
     }
-	
-	
-	public Page<ProductDto> getProductsWithLowStock(int page, int pageSize,Authentication authentication) throws FileNotFoundException {
+
+
+    public Page<ProductDto> getProductsbyCategory(String categoryName, int page, int pageSize) throws FileNotFoundException {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Product> products = productRepo.findByCategories_Name(categoryName, pageable);
+        if (products == null || products.isEmpty())
+            throw new ResourceNotFound("Product not found of category  " + categoryName);
+        return getProductDtos(pageable, products);
+
+    }
+
+
+    public Page<ProductDto> getProductsWithLowStock(int page, int pageSize, Authentication authentication) throws FileNotFoundException {
         String name = authentication.getName();
         Dealer dealer = dealerRepo.findByEmail(name);
-        Pageable pageable = PageRequest.of(page,pageSize);
-        Page<Product> products = productRepo.getLowStockProducts(pageable,dealer);
+        if (dealer == null) throw new ResourceNotFound("Dealer not found");
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Product> products = productRepo.getLowStockProducts(pageable, dealer);
         if (products == null || products.isEmpty()) throw new ResourceNotFound("No low Stock products found");
         return getProductDtos(pageable, products);
     }
 
     @Override
     public Page<ProductDto> getProductsByName(String name, int page, int pageSize) throws FileNotFoundException {
-        Pageable pageable = PageRequest.of(page,pageSize);
-        Page<Product> products = productRepo.findByName(name,pageable);
-        if (products == null || products.isEmpty()) throw new ResourceNotFound("Product not found of "+ name +" this Name");
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Product> products = productRepo.findByName(name, pageable);
+        if (products == null || products.isEmpty())
+            throw new ResourceNotFound("Product not found of " + name + " this Name");
         return getProductDtos(pageable, products);
     }
 
-    //Sort
-	
-	public Page<ProductDto> getProductsInRange(double from ,double to,int page, int pageSize) throws FileNotFoundException {
-        Pageable pageable = PageRequest.of(page,pageSize);
-        Page<Product> products = productRepo.findByPriceBetween(from,to,pageable);
-        if (products == null || products.isEmpty()) throw new ResourceNotFound("Product not fount in range "+from+" - "+to);
+    // Sort
+
+    public Page<ProductDto> getProductsInRange(double from, double to, int page, int pageSize) throws FileNotFoundException {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Product> products = productRepo.findByPriceBetween(from, to, pageable);
+        if (products == null || products.isEmpty())
+            throw new ResourceNotFound("Product not found in range " + from + " - " + to);
         return getProductDtos(pageable, products);
 
     }
@@ -239,36 +259,43 @@ public class ProductServiceImpl implements ProductService{
 
             productDtos.add(dto);
         }
-        return new PageImpl<ProductDto>(productDtos,pageable,products.getTotalElements());
+        return new PageImpl<ProductDto>(productDtos, pageable, products.getTotalElements());
     }
 
 
     //--------------------------- Delete-----------------------------//
 
-	public boolean deleteProduct(Integer id,Authentication authentication) {
+    public boolean deleteProduct(Integer id, Authentication authentication) {
         String name = authentication.getName();
         Dealer dealer = dealerRepo.findByEmail(name);
-        Product product = productRepo.findById(id).get();
-        if( !product.getDealer().getDealer_id().equals(dealer.getDealer_id())){
-            throw new AuthenticationCredentialsNotFoundException("Dealer is different for this porduct");
+        if (dealer == null) {
+            throw new ResourceNotFound("Dealer not found");
         }
-        if(productRepo.findById(id).isEmpty()) throw new ResourceNotFound("Product not found");
+
+        Optional<Product> productOpt = productRepo.findById(id);
+        if (productOpt.isEmpty()) throw new ResourceNotFound("Product not found");
+
+        Product product = productOpt.get();
+
+        if (!Objects.equals(product.getDealer().getDealer_id(), dealer.getDealer_id())) {
+            throw new AuthenticationCredentialsNotFoundException("Dealer is different for this product");
+        }
+
         productRepo.delete(product);
 
+        return true;
 
-		return true;
+    }
 
-	}
-
-    //For images
+    // For images
 
     private List<String> getImages(Product product) throws FileNotFoundException {
         List<String> images = new ArrayList<>();
         List<FileData> images1 = product.getImages();
-        if(images1 == null || images1.isEmpty()) {
-            String image  =  "No images added yet";
+        if (images1 == null || images1.isEmpty()) {
+            String image = "No images added yet";
             images.add(image);
-        }else {
+        } else {
             for (FileData fileData : images1) {
                 String image = imageService.getImage(fileData);
                 images.add(image);
@@ -277,9 +304,8 @@ public class ProductServiceImpl implements ProductService{
         return images;
     }
 
-	
-	//---------------------For Pagination--------------------//
-	
+    //---------------------For Pagination--------------------//
+
 //	public HashMap<Integer, List<Product>> pagination(List<Product> products){
 //		HashMap<Integer, List<Product>> allProducts =  new HashMap<>();
 //		int pageSize = 5;
@@ -298,7 +324,5 @@ public class ProductServiceImpl implements ProductService{
 //
 //		return allProducts;
 //	}
-
-	
 
 }

@@ -21,8 +21,6 @@ private String name;
 	
 	private String address;
 	
-	private boolean status;
-	
 	private Date createdAt;
 	
 	private Date updatedAt;
