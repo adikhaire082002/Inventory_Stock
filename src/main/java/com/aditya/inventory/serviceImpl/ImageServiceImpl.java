@@ -15,6 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,18 +27,11 @@ public class ImageServiceImpl implements ImageService {
     FileDataRepo fileDataRepo;
 
     @Autowired
-    DealerRepo  dealerRepo;
+    DealerRepo dealerRepo;
 
     @Autowired
-    ProductRepo  productRepo;
+    ProductRepo productRepo;
 
-    @Override
-    public FileData uploadImagetoFile(String path, MultipartFile file, Authentication authentication) throws IOException {
-
-
-        return null;
-
-    }
 
     @Override
     public List<FileData> uploadImages(Integer productId, String path, List<MultipartFile> files, Authentication authentication) throws IOException {
@@ -47,19 +41,19 @@ public class ImageServiceImpl implements ImageService {
         String dealerId = dealer.getDealer_id();
         Product product = productRepo.findById(productId).get();
 
-        for(MultipartFile file : files){
+        for (MultipartFile file : files) {
 
 
             String name = file.getOriginalFilename();
-            String uniqueName= System.currentTimeMillis()+"_"+name;
-            String folderPath = path + File.separator+ dealerId;
+            String uniqueName = System.currentTimeMillis() + "_" + name;
+            String folderPath = path + File.separator + dealerId;
 
             File dir = new File(folderPath);
-            if(!dir.exists()){
+            if (!dir.exists()) {
                 dir.mkdirs();
             }
 
-            String finalPath=folderPath+File.separator+uniqueName;
+            String finalPath = folderPath + File.separator + uniqueName;
 
             Files.copy(file.getInputStream(), Paths.get(finalPath));
 
@@ -81,12 +75,15 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public String getImage(FileData fileData) throws FileNotFoundException {
-       String url = ServletUriComponentsBuilder
-               .fromCurrentContextPath()
-               .path("/")
-               .path(fileData.getFilePath())
-               .toUriString();
+        String dealerId = fileData.getProduct().getDealer().getDealer_id();
+        String url = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/image/images/")
+                .queryParam("imageName", fileData.getName())
+                .queryParam("dealerId", dealerId)
+                .toUriString();
 
-       return url;
+        return url;
     }
+
 }

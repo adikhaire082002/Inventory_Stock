@@ -16,9 +16,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class BaseResponseDto{
 	
-private HttpStatus httpStatus;
+   private HttpStatus httpStatus;
 	
-	private String meassage;
+	private String message;
 	
 	private Object data;
 	

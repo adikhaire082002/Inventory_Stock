@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.aditya.inventory.dto.BaseResponseDto;
 
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
@@ -141,6 +142,19 @@ public class GlobalException {
     @ExceptionHandler(InvalidAddress.class)
     public ResponseEntity<BaseResponse> handlerInvalidAddress(InvalidAddress ex) {
         BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid address", new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidOTP.class)
+    public ResponseEntity<BaseResponse> handlerInvalidOTP(InvalidOTP ex) {
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid 6 digit otp", new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<BaseResponse> handlerMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid type of data", new Date());
         return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
     }
 	

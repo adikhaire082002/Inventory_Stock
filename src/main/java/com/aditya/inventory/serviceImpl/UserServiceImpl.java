@@ -202,6 +202,9 @@ public class UserServiceImpl implements UserService {
         if(!validateEmail(email)){
             throw new InvalidEmail();
         }
+        if(!validateOtp(userOtp)){
+            throw new InvalidOTP();
+        }
         User user = userRepo.findByEmail(email);
         if(user==null){
             throw new ResourceNotFound("user not found");
@@ -359,30 +362,54 @@ public class UserServiceImpl implements UserService {
 
 			case "Admin": {
 				Admin byUser_id = adminRepo.findByUser_id(savedUser.getUser_id());
-				Admin admin = userMapper.toAdmin(savedUser, byUser_id);
-				adminRepo.save(admin);
+                if(byUser_id==null){
+                    Admin admin = userMapper.toAdmin(savedUser);
+                    adminRepo.save(admin);
+                }else {
+                    Admin admin = userMapper.toAdmin(savedUser, byUser_id);
+                    adminRepo.save(admin);
+                }
 				break;
 			}
 			case "Dealer": {
 				Dealer byUser_id = dealerRepo.findByUser_id(savedUser.getUser_id());
-				Dealer dealer = userMapper.toDealer(savedUser, byUser_id);
-                if(userRequestDto.getCompanyName()!=null && userRequestDto.getGstNo()!=null) {
-                    if(!validateGSTNo(userRequestDto.getGstNo())) {
-                        throw new  InvalidGSTNo();
+
+                if(byUser_id==null){
+                    Dealer dealer = userMapper.toDealer(savedUser);
+                    if (userRequestDto.getCompanyName() != null && userRequestDto.getGstNo() != null) {
+                        if (!validateGSTNo(userRequestDto.getGstNo())) {
+                            throw new InvalidGSTNo();
+                        }
+                        dealer.setGSTNo(userRequestDto.getGstNo());
+                        dealer.setCompanyName(userRequestDto.getCompanyName());
+
                     }
-                    dealer.setGSTNo(userRequestDto.getGstNo());
-                    dealer.setCompanyName(userRequestDto.getCompanyName());
+                    dealerRepo.save(dealer);
+                }else {
+                    Dealer dealer = userMapper.toDealer(savedUser, byUser_id);
+                    if (userRequestDto.getCompanyName() != null && userRequestDto.getGstNo() != null) {
+                        if (!validateGSTNo(userRequestDto.getGstNo())) {
+                            throw new InvalidGSTNo();
+                        }
+                        dealer.setGSTNo(userRequestDto.getGstNo());
+                        dealer.setCompanyName(userRequestDto.getCompanyName());
 
+                    }
+
+                    dealerRepo.save(dealer);
                 }
-
-				dealerRepo.save(dealer);
 				break;
 			}
 
 			case "Customer": {
 				Customer byUser_id = customerRepo.findByUser_id(savedUser.getUser_id());
-				Customer customer = userMapper.toCustomer(savedUser, byUser_id);
-				customerRepo.save(customer);
+                if(byUser_id==null){
+                    Customer customer = userMapper.toCustomer(savedUser);
+                    customerRepo.save(customer);
+                }else {
+                    Customer customer = userMapper.toCustomer(savedUser, byUser_id);
+                    customerRepo.save(customer);
+                }
 				break;
 			}
 
@@ -493,9 +520,16 @@ public class UserServiceImpl implements UserService {
 
     //validate address
     private boolean validateAddress(String name) {
-        String regex = "^(?=.*[A-Za-z])[A-Za-z0-9-,.&]+$";
+        String regex = "^(?=.*[A-Za-z])[A-Za-z0-9- ,.&]+$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(name);
+        return matcher.matches();
+    }
+
+    private boolean validateOtp(Integer otp) {
+        String regex = "^[0-9]{6}$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(otp.toString());
         return matcher.matches();
     }
 
