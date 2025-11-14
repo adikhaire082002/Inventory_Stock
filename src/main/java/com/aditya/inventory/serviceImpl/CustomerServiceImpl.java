@@ -2,6 +2,9 @@ package com.aditya.inventory.serviceImpl;
 
 import com.aditya.inventory.customException.InsufficientStocks;
 import com.aditya.inventory.customException.ResourceNotFound;
+import com.aditya.inventory.dto.CartItemDto;
+import com.aditya.inventory.dto.CartResponseDto;
+import com.aditya.inventory.dto.ProductDto;
 import com.aditya.inventory.entity.Cart;
 import com.aditya.inventory.entity.CartItem;
 import com.aditya.inventory.entity.Customer;
@@ -10,15 +13,15 @@ import com.aditya.inventory.repository.CartRepo;
 import com.aditya.inventory.repository.CustomerRepo;
 import com.aditya.inventory.repository.ProductRepo;
 import com.aditya.inventory.service.CustomerService;
+import com.aditya.inventory.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -32,12 +35,17 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CartRepo cartRepo;
 
+    @Autowired
+    private ProductService productService;
+
+
+
 
 
 
 
     @Override
-    public Cart addToCart(Integer productId, Authentication authentication) {
+    public CartResponseDto addToCart(Integer productId, Authentication authentication) throws FileNotFoundException {
         String email = authentication.getName();
         Customer customer = customerRepo.findByEmail(email);
         Product product = productRepo.findById(productId).get();
@@ -77,11 +85,12 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepo.save(customer);
         cartRepo.save(cart);
 
-        return cart;
+
+        return getCartResponseDto(cart);
     }
 
     @Override
-    public Cart addToCart(Integer productId, Authentication authentication, Integer quantity) {
+    public CartResponseDto addToCart(Integer productId, Authentication authentication, Integer quantity) throws FileNotFoundException {
         String email = authentication.getName();
         Customer customer = customerRepo.findByEmail(email);
         Product product = productRepo.findById(productId).get();
@@ -121,11 +130,31 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepo.save(customer);
         Cart save = cartRepo.save(cart);
 
-        return save;
+        return getCartResponseDto(save);
+    }
+
+    private CartResponseDto getCartResponseDto(Cart save) throws FileNotFoundException {
+        CartResponseDto  cartResponseDto = new CartResponseDto();
+        List<CartItemDto> cartItemDtos = new ArrayList<>();
+
+        List<ProductDto> productDtos = new ArrayList<>();
+        List<CartItem> cartProducts = save.getProducts();
+        for(CartItem item:cartProducts){
+            ProductDto productById = productService.getProductById(item.getProduct().getProduct_id());
+            CartItemDto cartItemDto = new CartItemDto();
+            cartItemDto.setProducts(productById);
+            cartItemDto.setQuantity((int) item.getQuantity());
+            cartItemDtos.add(cartItemDto);
+
+        }
+        cartResponseDto.setProducts(cartItemDtos);
+        cartResponseDto.setTotal(save.getPrice());
+
+        return cartResponseDto;
     }
 
     @Override
-    public Cart getCart(Authentication authentication) {
+    public CartResponseDto getCart(Authentication authentication) throws FileNotFoundException {
         String email = authentication.getName();
         Customer customer = customerRepo.findByEmail(email);
         Cart cart = customer.getCart();
@@ -133,11 +162,11 @@ public class CustomerServiceImpl implements CustomerService {
             throw new ResourceNotFound("No items in Cart");
         }
 
-        return customer.getCart();
+        return getCartResponseDto(cart);
     }
 
     @Override
-    public Cart removeProduct(Authentication authentication, Integer productId) {
+    public CartResponseDto removeProduct(Authentication authentication, Integer productId) throws FileNotFoundException {
         String email = authentication.getName();
         Customer customer = customerRepo.findByEmail(email);
         Cart cart = customer.getCart();
@@ -174,13 +203,13 @@ public class CustomerServiceImpl implements CustomerService {
             throw new ResourceNotFound("No items in Cart");
         }
 
-        return saved;
+        return getCartResponseDto(saved);
     }
 
 
 
     @Override
-    public Cart decreaseQuantity(Authentication authentication, Integer productId) {
+    public CartResponseDto decreaseQuantity(Authentication authentication, Integer productId) throws FileNotFoundException {
         String email = authentication.getName();
         Customer customer = customerRepo.findByEmail(email);
         Cart cart = customer.getCart();
@@ -222,7 +251,7 @@ public class CustomerServiceImpl implements CustomerService {
             throw new ResourceNotFound("No items in Cart");
         }
 
-        return saved;
+        return getCartResponseDto(saved);
     }
 
 

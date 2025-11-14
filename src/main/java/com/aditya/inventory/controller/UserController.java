@@ -1,5 +1,6 @@
 package com.aditya.inventory.controller;
 
+import java.io.IOException;
 import java.util.Date;
 
 import com.aditya.inventory.repository.UserRepo;
@@ -40,7 +41,7 @@ public class UserController {
     }
 
 	@DeleteMapping("/delete")
-	public ResponseEntity<BaseResponse> deleteUser(@RequestParam String id, HttpServletRequest request) {
+	public ResponseEntity<BaseResponse> deleteUser(@RequestParam String id, HttpServletRequest request) throws IOException {
         userService.deleteUser(id,request);
         BaseResponse response = new BaseResponse(HttpStatus.OK, "User Deleted ", new Date());
         return ResponseEntity.ok(response);

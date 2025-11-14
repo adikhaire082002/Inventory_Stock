@@ -1,5 +1,8 @@
 package com.aditya.inventory.serviceImpl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +13,7 @@ import com.aditya.inventory.entity.*;
 import com.aditya.inventory.jwt.JwtUtils;
 import com.aditya.inventory.repository.*;
 import com.aditya.inventory.service.EmailService;
+import com.aditya.inventory.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +53,9 @@ public class UserServiceImpl implements UserService {
     private EmailService emailService;
 
     @Autowired
+    private FileDataRepo fileDataRepo;
+
+    @Autowired
     private OtpRepo otpRepo;
 
     @Value("${adminLoginKey}")
@@ -56,6 +63,10 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+
+    @Autowired
+    private ProductRepo productRepo;
 
     //-------------------Sign In Authentication-----------//
     @Override
@@ -255,7 +266,7 @@ public class UserServiceImpl implements UserService {
 
     // Delete User
     @Override
-    public boolean deleteUser(String id, HttpServletRequest request) {
+    public boolean deleteUser(String id, HttpServletRequest request) throws IOException {
         String jwt = jwtUtils.getJwtFromHeader(request);
         String userNameFromJwtToken = jwtUtils.getUserNameFromJwtToken(jwt);
         UserResponseDto userByEmail = getUserByEmail(userNameFromJwtToken);
@@ -275,7 +286,18 @@ public class UserServiceImpl implements UserService {
                         }
                         case "Dealer": {
                             Dealer dealer = dealerRepo.findByUser_id(userById.getUser_id());
-                            if (dealer != null) dealerRepo.delete(dealer);
+                            if (dealer != null) {
+                                List<Product> products = dealer.getProducts();
+                                for (Product product : products) {
+                                    List<FileData> images = product.getImages();
+                                    for (FileData fileData : images) {
+                                        Files.deleteIfExists(Paths.get(fileData.getFilePath()));
+                                        fileDataRepo.delete(fileData);
+                                    }
+                                    productRepo.delete(product);
+                                }
+                                dealerRepo.delete(dealer);
+                            }
                             break;
                         }
                         case "Customer": {

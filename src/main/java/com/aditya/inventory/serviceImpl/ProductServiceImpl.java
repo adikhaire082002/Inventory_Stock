@@ -2,6 +2,8 @@ package com.aditya.inventory.serviceImpl;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,8 +15,7 @@ import com.aditya.inventory.customException.AlreadyExits;
 import com.aditya.inventory.customException.InsufficientStocks;
 import com.aditya.inventory.customException.ResourceNotFound;
 import com.aditya.inventory.entity.*;
-import com.aditya.inventory.repository.DealerRepo;
-import com.aditya.inventory.repository.UserRepo;
+import com.aditya.inventory.repository.*;
 import com.aditya.inventory.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +26,6 @@ import org.springframework.stereotype.Service;
 
 import com.aditya.inventory.dto.ProductDto;
 import com.aditya.inventory.mapper.ProductMapper;
-import com.aditya.inventory.repository.CategoryRepo;
-import com.aditya.inventory.repository.ProductRepo;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -58,6 +57,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Value("${project.image}")
     private String path;
+    @Autowired
+    private FileDataRepo fileDataRepo;
 
     //--------------- Create and Updates----------------//
 
@@ -265,13 +266,9 @@ public class ProductServiceImpl implements ProductService {
 
     //--------------------------- Delete-----------------------------//
 
-    public boolean deleteProduct(Integer id, Authentication authentication) {
+    public boolean deleteProduct(Integer id, Authentication authentication) throws IOException {
         String name = authentication.getName();
         Dealer dealer = dealerRepo.findByEmail(name);
-        if (dealer == null) {
-            throw new ResourceNotFound("Dealer not found");
-        }
-
         Optional<Product> productOpt = productRepo.findById(id);
         if (productOpt.isEmpty()) throw new ResourceNotFound("Product not found");
 
@@ -280,6 +277,14 @@ public class ProductServiceImpl implements ProductService {
         if (!Objects.equals(product.getDealer().getDealer_id(), dealer.getDealer_id())) {
             throw new AuthenticationCredentialsNotFoundException("Dealer is different for this product");
         }
+
+        List<FileData> images = product.getImages();
+
+        for(FileData fileData : images){
+            Files.deleteIfExists(Paths.get(fileData.getFilePath()));
+            fileDataRepo.delete(fileData);
+        }
+
 
         productRepo.delete(product);
 

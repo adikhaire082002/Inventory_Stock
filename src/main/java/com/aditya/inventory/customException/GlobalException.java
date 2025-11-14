@@ -154,7 +154,7 @@ public class GlobalException {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<BaseResponse> handlerMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid type of data", new Date());
+        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid type of  data", new Date());
         return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
     }
 	

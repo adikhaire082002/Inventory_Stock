@@ -47,6 +47,6 @@ public interface ProductService {
     Page<ProductDto> getProductsByName(String name, int page, int pageSize) throws FileNotFoundException;
 	
 	//DELETE
-	boolean deleteProduct(Integer id,Authentication authentication);
+	boolean deleteProduct(Integer id,Authentication authentication) throws IOException;
 	
 }

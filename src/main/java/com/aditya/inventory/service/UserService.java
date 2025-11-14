@@ -1,5 +1,6 @@
 package com.aditya.inventory.service;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public interface UserService {
 	
 	List<UserResponseDto> getUsers() ;
 
-	boolean deleteUser(String id, HttpServletRequest request);
+	boolean deleteUser(String id, HttpServletRequest request) throws IOException;
 
 	UserResponseDto getUserById(String id);
 

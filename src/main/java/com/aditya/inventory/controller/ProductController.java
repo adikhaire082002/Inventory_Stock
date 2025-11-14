@@ -48,7 +48,7 @@ public class ProductController {
 	
 	@PreAuthorize("hasRole('Admin')")
 	@DeleteMapping("/deleteProduct")
-	public ResponseEntity<BaseResponse> deleteProduct(@RequestParam Integer id,Authentication authentication){
+	public ResponseEntity<BaseResponse> deleteProduct(@RequestParam Integer id,Authentication authentication) throws IOException {
 		productService.deleteProduct(id,authentication);
         BaseResponse response = new BaseResponse(HttpStatus.OK,"Product Deleted successfully ",new Date());
 		return ResponseEntity.ok(response);
