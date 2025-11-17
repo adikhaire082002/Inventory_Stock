@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.aditya.inventory.customException.AlreadyExits;
 import com.aditya.inventory.customException.InsufficientStocks;
@@ -69,8 +71,19 @@ public class ProductServiceImpl implements ProductService {
         if (dealer == null) {
             throw new ResourceNotFound("Dealer not found");
         }
+        if(productDto.getName()==null || !validateProductName(productDto.getName()) || productDto.getName().isEmpty() || productDto.getName().trim().isEmpty()) {
+            throw new RuntimeException("Enter valid product name");
+        }
 
-        existsByName(productDto.getName());
+        if(!validateProductName(productDto.getBrand())) {
+            throw new RuntimeException("Enter valid brand name");
+        }
+
+        for(String category:productDto.getCategories()) {
+            if(!validateProductName(category)) {
+                throw new RuntimeException("Enter valid category name");
+            }
+        }
 
         if (productDto.getCategories() != null && !productDto.getCategories().isEmpty()) {
             newCategory(productDto);
@@ -307,6 +320,14 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         return images;
+    }
+
+
+    private boolean validateProductName(String name) {
+        String regex = "^(?=.*[A-Za-z])[A-Za-z0-9- ,.&]+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(name);
+        return matcher.matches();
     }
 
     //---------------------For Pagination--------------------//

@@ -157,6 +157,12 @@ public class GlobalException {
         BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid type of  data", new Date());
         return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(RuntimeException.class )
+    public ResponseEntity<BaseResponse> handlerRuntimeException(RuntimeException ex) {
+        BaseResponse response = new BaseResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), new Date());
+        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
+    }
 	
 	
 	
