@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Date;
 
 import com.aditya.inventory.repository.UserRepo;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<BaseResponse> createUser(@RequestBody UserRequestDto userRequestDto) {
+    public ResponseEntity<BaseResponse> createUser(@RequestBody @Valid UserRequestDto userRequestDto) {
         userService.addUser(userRequestDto);
         BaseResponse response = new BaseResponse(HttpStatus.OK, "Otp send successfully", new Date());
         return ResponseEntity.ok(response);

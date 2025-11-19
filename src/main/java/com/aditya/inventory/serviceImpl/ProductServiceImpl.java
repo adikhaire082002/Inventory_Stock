@@ -163,7 +163,7 @@ public class ProductServiceImpl implements ProductService {
             throw new AuthenticationCredentialsNotFoundException("Dealer is different for this product");
         }
 
-        if ((int) product.getQuantity() + stockToUpdate < 0) {
+        if (product.getQuantity() + stockToUpdate < 0) {
             throw new InsufficientStocks();
         }
 
@@ -218,7 +218,7 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Product> products = productRepo.findByBrand(brandName, pageable);
         if (products == null || products.isEmpty())
-            throw new ResourceNotFound("Product not found of " + brandName + " this brand");
+            throw new ResourceNotFound("Product not found of " + brandName + " brand");
         return getProductDtos(pageable, products);
 
     }

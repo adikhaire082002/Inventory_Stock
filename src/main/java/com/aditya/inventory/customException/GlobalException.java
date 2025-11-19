@@ -3,6 +3,8 @@ package com.aditya.inventory.customException;
 import java.io.FileNotFoundException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.naming.AuthenticationException;
@@ -12,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -152,10 +156,23 @@ public class GlobalException {
     }
 
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<BaseResponse> handlerMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST,"Enter valid type of  data", new Date());
-        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
+//    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+//    public ResponseEntity<BaseResponse> handlerMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+//        BaseResponse response= new BaseResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), new Date());
+//        return new ResponseEntity<BaseResponse>(response,HttpStatus.BAD_REQUEST);
+//    }
+
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<BaseResponseDto> handlerMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        Map<String,String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String field = ((FieldError) error).getField();
+            String defaultMessage = error.getDefaultMessage();
+            errors.put(field,defaultMessage);
+        });
+        BaseResponseDto response= new BaseResponseDto(HttpStatus.BAD_REQUEST, "Error",errors, new Date());
+        return new ResponseEntity<BaseResponseDto>(response,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(RuntimeException.class )

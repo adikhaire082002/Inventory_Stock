@@ -3,6 +3,8 @@ package com.aditya.inventory.controller;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
+
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -31,13 +33,13 @@ public class ProductController {
 	
 	@PreAuthorize("hasRole('Dealer')")
 	@PostMapping("/addProduct")
-	public ResponseEntity<BaseResponse> addProduct(@RequestBody ProductDto productDto, Authentication authentication) throws IOException {
+	public ResponseEntity<BaseResponse> addProduct(@RequestBody @Valid ProductDto productDto, Authentication authentication) throws IOException {
 		productService.addProduct(productDto,authentication);
         BaseResponse response = new BaseResponse(HttpStatus.OK,"Product Added successfully ",new Date());
 		return ResponseEntity.ok(response);
 	}
 	
-	@PreAuthorize("hasRole('Admin')")
+	@PreAuthorize("hasRole('Dealer')")
 	@PatchMapping("/updateProduct")
 	public ResponseEntity<BaseResponseDto> updateProduct(@RequestParam Integer id, @RequestBody ProductDto productDto, Authentication authentication){
 		ProductDto updatedProduct = productService.updateProduct(id,productDto,authentication);
@@ -46,7 +48,7 @@ public class ProductController {
 		
 	}
 	
-	@PreAuthorize("hasRole('Admin')")
+	@PreAuthorize("hasRole('Dealer')")
 	@DeleteMapping("/deleteProduct")
 	public ResponseEntity<BaseResponse> deleteProduct(@RequestParam Integer id,Authentication authentication) throws IOException {
 		productService.deleteProduct(id,authentication);

@@ -102,22 +102,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponseDto addUser(UserRequestDto userRequestDto) {
 
-        if (!validateMobileNumber(userRequestDto.getMobile())) {
+        if(!validateMobileNumber(userRequestDto.getMobile())){
             throw new InvalidMobileNumber();
-        }
-        if (!validateEmail(userRequestDto.getEmail())) {
-            throw new InvalidEmail();
-        }
-
-        if (!validatePassword(userRequestDto.getPassword())) {
-            throw new InvalidPassword();
-        }
-        if (!validBasicName(userRequestDto.getName()) || userRequestDto.getName().isEmpty() || userRequestDto.getName().trim().isEmpty()) {
-            throw new InvalidName();
-        }
-
-        if (!validateAddress(userRequestDto.getAddress()) || userRequestDto.getAddress().isEmpty() || userRequestDto.getAddress().trim().isEmpty()) {
-            throw new InvalidAddress();
         }
 
         if (userRepo.existsByEmail(userRequestDto.getEmail())) {
@@ -208,9 +194,6 @@ public class UserServiceImpl implements UserService {
     public void verifyOtp(int userOtp, String email) {
         if (!validateEmail(email)) {
             throw new InvalidEmail();
-        }
-        if (!validateOtp(userOtp)) {
-            throw new InvalidOTP();
         }
         User user = userRepo.findByEmail(email);
         if (user == null) {

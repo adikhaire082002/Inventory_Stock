@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -50,9 +54,19 @@ public class Dealer {
 	private Date updatedAt;
 
     @Column(nullable = false)
+//    @NotBlank(message = "Company name should not be blank")
+//    @NotNull(message = "Company name should not be null")
+//    @NotEmpty(message = "Company name should not be empty")
     private String CompanyName;
 
     @Column(nullable = false)
+//    @NotBlank(message = "GST No. should not be blank")
+//    @NotNull(message = "GST No. should not be null")
+//    @NotEmpty(message = "GST No. should not be empty")
+//    @Pattern(
+//            regexp = "^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$",
+//            message = "Enter valid gst number in format - 00AAAAA0000A{0/A}{Z}{0/A}, 0= Any number, A=any alphabet"
+//    )
     private String GSTNo;
 
     @OneToMany(mappedBy = "dealer", cascade = {CascadeType.PERSIST, CascadeType.MERGE},orphanRemoval = true)
