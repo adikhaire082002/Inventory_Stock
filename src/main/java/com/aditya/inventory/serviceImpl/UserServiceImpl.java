@@ -3,6 +3,7 @@ package com.aditya.inventory.serviceImpl;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,7 +14,6 @@ import com.aditya.inventory.entity.*;
 import com.aditya.inventory.jwt.JwtUtils;
 import com.aditya.inventory.repository.*;
 import com.aditya.inventory.service.EmailService;
-import com.aditya.inventory.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.aditya.inventory.mapper.UserMapper;
 import com.aditya.inventory.service.UserService;
@@ -57,6 +59,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private OtpRepo otpRepo;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Value("${adminLoginKey}")
     String adminKey;
@@ -95,6 +100,94 @@ public class UserServiceImpl implements UserService {
         String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);             // generate Jwt token for validated user
         LoginResponse response = new LoginResponse(userDetails.getUsername(), jwtToken);// response jwt token with email
         return response;
+    }
+
+    @Override
+    public UserResponseDto updatePassword(String oldPassword, String newPassword, Authentication authentication) {
+        String name = authentication.getName();
+        User user = userRepo.findByEmail(name);
+        if(!validatePassword(oldPassword)) {
+            throw new InvalidPassword();
+        }
+        if(!validatePassword(newPassword)) {
+            throw new InvalidPassword();
+        }
+        if(!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw  new RuntimeException("Entered old passwords do not match ");
+        }
+        if(passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new RuntimeException("Cant use previous password as new password");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        User save = userRepo.save(user);
+        return userMapper.toDto(save);
+    }
+
+    @Override
+    public void forgotPassword(String email) {
+        User user = userRepo.findByEmail(email);
+        if (user == null) {
+            throw new ResourceNotFound("User not found");
+        }
+
+        int otp = createOpt();
+        Otp otpUser;
+        Otp byEmail = otpRepo.findByEmail(email);
+        if(byEmail == null) {
+            otpUser = new Otp();
+        }
+        else {
+            otpUser = byEmail;
+        }
+
+        otpUser.setOtp(otp);
+        otpUser.setCreated(new Timestamp(System.currentTimeMillis()));
+        otpUser.setExpiray(Timestamp.from(new Timestamp(System.currentTimeMillis()).toInstant().plusMillis(120000)));
+        otpUser.setEmail(user.getEmail());
+        otpRepo.save(otpUser);
+
+        emailService.sendMail(user.getEmail(), "Otp for password reset", otp + "  this is your otp for reset password.");
+
+    }
+
+    @Override
+    public void resetPassword(int otp, String email, String newPassword) {
+        if (email != null) {
+            if (!validateEmail(email)) {
+                throw new InvalidEmail();
+            }
+        }
+
+        User user = userRepo.findByEmail(email);
+        if (user == null) {
+            throw new ResourceNotFound("User not found");
+        }
+        if(!validatePassword(newPassword)) {
+            throw new InvalidPassword();
+        }
+        if(!validateOtp(otp)){
+            throw new InvalidOTP();
+        }
+
+        Otp byEmail = otpRepo.findByEmail(email);
+        if (byEmail == null) {
+            throw new ResourceNotFound("OTP not found for email");
+        }
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+
+        if(!now.before(byEmail.getExpiray())) {
+            throw new RuntimeException("OTP expired");
+        }
+
+        if (otp == byEmail.getOtp()) {
+
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepo.save(user);
+            otpRepo.delete(byEmail);
+        } else {
+            throw new InvalidInput("Enter valid OTP");
+        }
+
     }
 
     // ---------------------Adding User-----------------//
@@ -183,6 +276,8 @@ public class UserServiceImpl implements UserService {
         int otp = createOpt();
         Otp otpUser = new Otp();
         otpUser.setOtp(otp);
+        otpUser.setCreated(new Timestamp(System.currentTimeMillis()));
+        otpUser.setExpiray(Timestamp.from(new Timestamp(System.currentTimeMillis()).toInstant().plusMillis(120000)));
         otpUser.setEmail(user.getEmail());
         otpRepo.save(otpUser);
 
@@ -208,7 +303,10 @@ public class UserServiceImpl implements UserService {
         if (byEmail == null) {
             throw new ResourceNotFound("OTP not found for email");
         }
-
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        if(!now.before(byEmail.getExpiray())) {
+            throw  new RuntimeException("OTP expired");
+        }
         if (userOtp == byEmail.getOtp()) {
 
             user.setStatus(true);
@@ -302,7 +400,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto updateUser(UserRequestDto userRequestDto, HttpServletRequest request) {
 
-        // basic validations only for provided fields
         if (userRequestDto.getMobile() != null) {
             if (!validateMobileNumber(userRequestDto.getMobile())) {
                 throw new InvalidMobileNumber();

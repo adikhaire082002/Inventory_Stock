@@ -9,6 +9,7 @@ import com.aditya.inventory.dto.LoginResponse;
 import com.aditya.inventory.dto.UserRequestDto;
 import com.aditya.inventory.dto.UserResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.Authentication;
 
 public interface UserService {
 	
@@ -36,4 +37,10 @@ public interface UserService {
 
 
     LoginResponse authenticateUser(LoginRequest loginRequest);
+
+    UserResponseDto updatePassword(String oldPassword, String newPassword, Authentication authentication);
+
+    void forgotPassword(String email);
+
+    void resetPassword(int otp, String email, String newPassword);
 }
