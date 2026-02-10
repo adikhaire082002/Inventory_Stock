@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/User")
+@CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
 
     @Autowired
@@ -62,21 +63,21 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('Dealer','Customer','Admin')")
     @PatchMapping("/changePassword")
-    public ResponseEntity<BaseResponse> updateUser(@RequestParam String oldPassword, @RequestParam String newPassword, Authentication  authentication) {
+    public ResponseEntity<BaseResponse> updatePassword(@RequestParam String oldPassword, @RequestParam String newPassword, Authentication  authentication) {
         UserResponseDto updateUser = userService.updatePassword(oldPassword,newPassword,authentication);
         BaseResponse response = new BaseResponse(HttpStatus.OK, "Password update successfully", new Date());
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/forgotPassword")
-    public ResponseEntity<BaseResponse> updateUser(@RequestParam String email) {
+    public ResponseEntity<BaseResponse> forgotPassword(@RequestParam String email) {
         userService.forgotPassword(email);
         BaseResponse response = new BaseResponse(HttpStatus.OK, "Otp send successfully", new Date());
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/resetPassword")
-    public ResponseEntity<BaseResponse> updateUser(@RequestParam int otp, @RequestParam String email, @RequestParam String newPassword) {
+    public ResponseEntity<BaseResponse> resetPassword(@RequestParam int otp, @RequestParam String email, @RequestParam String newPassword) {
         userService.resetPassword(otp,email,newPassword);
         BaseResponse response = new BaseResponse(HttpStatus.OK, "Password update successfully", new Date());
         return ResponseEntity.ok(response);

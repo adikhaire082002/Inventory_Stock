@@ -254,7 +254,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     // Sort
-
     public Page<ProductDto> getProductsInRange(double from, double to, int page, int pageSize) throws FileNotFoundException {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Product> products = productRepo.findByPriceBetween(from, to, pageable);
@@ -267,8 +266,7 @@ public class ProductServiceImpl implements ProductService {
     private Page<ProductDto> getProductDtos(Pageable pageable, Page<Product> products) throws FileNotFoundException {
         List<ProductDto> productDtos = new ArrayList<>();
         for (Product product : products) {
-            ProductDto dto = productMapper.toDto(product);
-            List<String> images = getImages(product);
+            ProductDto dto = productMapper.toDto(product);            List<String> images = getImages(product);
             dto.setImages(images);
 
             productDtos.add(dto);

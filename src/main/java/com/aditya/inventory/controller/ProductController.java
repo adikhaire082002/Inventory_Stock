@@ -29,7 +29,6 @@ public class ProductController {
 	@Autowired
 	ProductService productService;
 
-	//Admin Access Only
 	
 	@PreAuthorize("hasRole('Dealer')")
 	@PostMapping("/addProduct")

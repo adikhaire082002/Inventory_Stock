@@ -124,6 +124,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+
     public void forgotPassword(String email) {
         User user = userRepo.findByEmail(email);
         if (user == null) {
@@ -303,11 +304,13 @@ public class UserServiceImpl implements UserService {
         if (byEmail == null) {
             throw new ResourceNotFound("OTP not found for email");
         }
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        if(!now.before(byEmail.getExpiray())) {
-            throw  new RuntimeException("OTP expired");
-        }
+
         if (userOtp == byEmail.getOtp()) {
+
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            if(!now.before(byEmail.getExpiray())) {
+                throw  new RuntimeException("OTP expired");
+            }
 
             user.setStatus(true);
             userRepo.save(user);
@@ -427,7 +430,6 @@ public class UserServiceImpl implements UserService {
                 throw new InvalidAddress();
             }
         }
-
         String jwt = jwtUtils.getJwtFromHeader(request);
         String userNameFromJwtToken = jwtUtils.getUserNameFromJwtToken(jwt);
         User currentUser = userRepo.findByEmail(userNameFromJwtToken);

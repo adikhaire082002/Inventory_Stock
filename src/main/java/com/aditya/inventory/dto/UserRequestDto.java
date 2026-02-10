@@ -37,6 +37,7 @@ public class UserRequestDto {
     private Long mobile;
 
 
+
     @NotBlank(message = "Address should not be blank")
     @Pattern(
             regexp ="^(?=.*[A-Za-z])[A-Za-z0-9- ,.&]+$",
